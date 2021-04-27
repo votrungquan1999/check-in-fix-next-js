@@ -15,7 +15,7 @@ export default function Login() {
         router.push('/');
       }
     } catch (error) {
-      alert('login failed');
+      alert(`login failed due to ${error.message.error.message}`);
       console.log(error);
     }
   };
