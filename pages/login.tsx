@@ -15,7 +15,13 @@ export default function Login() {
         router.push('/');
       }
     } catch (error) {
-      alert(`login failed due to ${error.message.error.message}`);
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      if (errorCode === 'auth/wrong-password') {
+        alert('Wrong password.');
+      } else {
+        alert(errorMessage);
+      }
       console.log(error);
     }
   };
