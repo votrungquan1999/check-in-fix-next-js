@@ -1,10 +1,12 @@
 import { PhoneOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Typography } from 'antd';
+import { useForm } from 'antd/lib/form/Form';
 import Text from 'antd/lib/typography/Text';
 import Title from 'antd/lib/typography/Title';
-import axios from 'axios';
+
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import NumberKeyboard from '../src/Components/NumberKeyboard';
 import withAuth from '../src/firebase/withAuth';
 import { Customer, getCustomers } from '../src/services/customers';
 import {
@@ -29,27 +31,51 @@ interface CustomerChosingFormProps {
 }
 
 function PhoneNumberInputForm({ handleSubmitPhoneNumber }: PhoneNumberInputFormProps) {
+  const [phoneNumber, setPhoneNumber] = useState('');
+
+  const [form] = useForm();
+
+  const handleClickNumber = (value: number) => {
+    const newPhoneNumber = phoneNumber + value.toString();
+
+    setPhoneNumber(newPhoneNumber);
+
+    form.setFieldsValue({ phone: newPhoneNumber });
+  };
+
+  console.log(phoneNumber);
+
   return (
     <div style={phoneNumberInputPageStyles}>
-      <Form onFinish={handleSubmitPhoneNumber} style={phoneNumberFormStyles}>
+      <Form onFinish={handleSubmitPhoneNumber} style={phoneNumberFormStyles} form={form}>
         <Typography.Title level={3} type={'secondary'}>
           Please enter your phone number
         </Typography.Title>
 
-        <Form.Item name="phone" rules={[{ required: true, message: 'Please input your phone number!' }]}>
+        <Form.Item
+          name="phone"
+          style={{ width: '100%' }}
+          rules={[{ required: true, message: 'Please input your phone number!' }]}
+        >
           <Input
-            type={'number'}
-            style={{ width: '100%' }}
+            type={'text'}
             prefix={<PhoneOutlined />}
             placeholder="Phone Number"
             size="large"
+            disabled={true}
+            allowClear
           />
         </Form.Item>
 
-        <Form.Item>
-          <Button type="primary" htmlType="submit" style={{ float: 'right' }}>
+        <NumberKeyboard handleClickNumber={handleClickNumber} />
+
+        <Form.Item style={{ width: '100%' }}>
+          <Button type="primary" size="large" htmlType="submit" style={{ width: '100%' }}>
             Submit
           </Button>
+          <Typography.Text style={{ fontSize: 20, float: 'right' }}>
+            Or <a href="/create-customer">register now!</a>
+          </Typography.Text>
         </Form.Item>
       </Form>
     </div>

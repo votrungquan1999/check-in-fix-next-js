@@ -14,6 +14,8 @@ const firebaseConfig = {
 };
 
 function MyApp({ Component, pageProps }: AppProps) {
+  // process.env.NEXT_PUBLIC_BACKEND_URL = 'http://localhost:8080';
+
   if (firebaseCli.apps.length === 0) {
     firebaseCli.initializeApp(firebaseConfig);
   }

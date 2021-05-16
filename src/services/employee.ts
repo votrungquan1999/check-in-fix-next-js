@@ -18,7 +18,6 @@ export async function getEmployeeInfo(token: string | null) {
   const baseBEURL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   try {
-    console.log(token);
     const resp = await axios.get<GetEmployeeInfo>(`${baseBEURL}/private/auth/employee-info`, {
       headers: {
         authorization: token,

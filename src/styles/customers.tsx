@@ -2,7 +2,10 @@ import { CSSProperties } from 'react';
 import styled from 'styled-components';
 
 export const phoneNumberFormStyles: CSSProperties = {
-  width: 500,
+  // width: 210,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
 };
 
 export const phoneNumberInputPageStyles: CSSProperties = {
