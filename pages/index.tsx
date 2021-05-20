@@ -6,6 +6,7 @@ import { Button } from 'antd';
 import firebase from 'firebase';
 import React, { useCallback } from 'react';
 import withAuth, { WithAuthProps } from '../src/firebase/withAuth';
+import MainContainer from '../src/Components/Layout/Containter';
 
 import 'antd/dist/antd.css';
 
@@ -16,12 +17,7 @@ function Home(props: WithAuthProps) {
 
   const { user } = props;
 
-  return (
-    <div>
-      <p>Your email is {user.email ? user.email : 'unknown'}.</p>
-      <Button onClick={handleClick}>log out</Button>
-    </div>
-  );
+  return <MainContainer />;
 }
 
 export default withAuth(Home);
