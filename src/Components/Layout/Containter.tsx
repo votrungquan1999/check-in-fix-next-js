@@ -10,9 +10,7 @@ import { Breadcrumb, Button, Layout, Menu, Spin } from 'antd';
 import { MenuClickEventHandler } from 'rc-menu/lib/interface';
 import { Content, Footer, Header } from 'antd/lib/layout/layout';
 import Sider from 'antd/lib/layout/Sider';
-import SubMenu from 'antd/lib/menu/SubMenu';
-import { GetServerSideProps } from 'next';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import withAuth from '../../firebase/withAuth';
 import { getSubscriber, Subscriber } from '../../services/subscribers';
 import {
@@ -27,22 +25,27 @@ import {
 import { Dashboard } from './Dashboard';
 import { Tickets } from './Tickets';
 import firebase from 'firebase';
-
-const MainContainerContents = {
-  1: <Dashboard />,
-  2: <Tickets />,
-};
+import { Customers } from './Customers';
 
 const pageNames = {
   1: 'Dashboard',
   2: 'Tickets',
+  3: 'Customers',
 };
 
-type contentKeys = '1' | '2';
+type contentKeys = '1' | '2' | '3';
 
 export default withAuth(function MainContainer({ employee, user }) {
   const [subscriber, setSubscriber] = useState<Subscriber>();
   const [currentTab, setCurrentTab] = useState<contentKeys>('1');
+
+  const MainContainerContents = useMemo(() => {
+    return {
+      1: <Dashboard employee={employee} user={user} />,
+      2: <Tickets employee={employee} user={user} subscriber={subscriber} />,
+      3: <Customers employee={employee} user={user} />,
+    };
+  }, [employee, subscriber, user]);
 
   const handleLogout = useCallback(() => {
     firebase.auth().signOut();
@@ -58,7 +61,7 @@ export default withAuth(function MainContainer({ employee, user }) {
     };
 
     getAndSetSubscriber();
-  });
+  }, [employee, user]);
 
   const handleClickMenu: MenuClickEventHandler = ({ key }) => {
     setCurrentTab(key as contentKeys);
@@ -84,6 +87,9 @@ export default withAuth(function MainContainer({ employee, user }) {
               </Menu.Item>
               <Menu.Item key="2" icon={<DatabaseOutlined />}>
                 Tickets
+              </Menu.Item>
+              <Menu.Item key="3" icon={<UserOutlined />}>
+                Customers
               </Menu.Item>
             </Menu>
           </MainContainerSiderMenuStyled>

@@ -10,7 +10,11 @@ export interface Customer {
   subscriber_id: string;
 }
 
-export async function getCustomers(phoneNumber: string, subscriberID: string, token: string): Promise<Customer[]> {
+export async function getCustomersByPhoneNumber(
+  phoneNumber: string,
+  subscriberID: string,
+  token: string,
+): Promise<Customer[]> {
   const baseBEURL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   try {
@@ -28,7 +32,34 @@ export async function getCustomers(phoneNumber: string, subscriberID: string, to
     return resp.data.data;
   } catch (error) {
     console.log(error.message);
-    alert(`get customsers error, please contact tech support for help`);
+    alert(`get customers error, please contact tech support for help`);
+  }
+
+  return [];
+}
+
+export async function getCustomers(subscriberID: string, token: string, phoneNumber?: string) {
+  const baseBEURL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+  let reqURL = `${baseBEURL}/private/subscribers/${subscriberID}/customers`;
+
+  if (phoneNumber) {
+    reqURL += `?phone_number=${phoneNumber}`;
+  }
+
+  try {
+    const resp = await axios.get<CommonResponse<Customer[]>>(reqURL, {
+      headers: {
+        authorization: token,
+      },
+      responseType: 'json',
+      validateStatus: (status) => status < 500,
+    });
+
+    return resp.data.data;
+  } catch (error) {
+    console.log(error.message);
+    alert(`get customers error, please contact tech support for help`);
   }
 
   return [];
@@ -49,7 +80,7 @@ export async function createCustomer(
   const baseBEURL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   const resp = await axios.post<CommonResponse<Customer>>(
-    `${baseBEURL}/private/subscribers/${subscriberID}/customers/`,
+    `${baseBEURL}/private/subscribers/${subscriberID}/customers`,
     input,
     {
       headers: {

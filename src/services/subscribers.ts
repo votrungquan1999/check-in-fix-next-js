@@ -22,7 +22,7 @@ export async function getSubscriber(subscriberID: string, token: string) {
     return resp.data.data;
   } catch (error) {
     console.log(error.message);
-    alert(`get employee info error, please contact tech support for help`);
+    alert(`get subscriber info error, please contact tech support for help`);
   }
 
   return;

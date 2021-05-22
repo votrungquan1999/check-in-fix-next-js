@@ -140,7 +140,7 @@ export default withAuth(function Customers(props) {
 
   const handleSubmitPhoneNumber = async (input: PhoneNumberInputResult) => {
     const token = await user.getIdToken();
-    const customers = await getCustomers(input.phone, employee.subscriber_id, token);
+    const customers = await getCustomers(employee.subscriber_id, token, input.phone);
     console.log(customers);
     setCustomers(customers);
   };

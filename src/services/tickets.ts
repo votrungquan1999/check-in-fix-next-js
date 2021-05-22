@@ -26,7 +26,7 @@ export async function createTicket(input: CreateTicketInput, token: string) {
   const baseBEURL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   try {
-    const resp = await axios.post<CommonResponse<Ticket>>(`${baseBEURL}/private/tickets/`, input, {
+    const resp = await axios.post<CommonResponse<Ticket>>(`${baseBEURL}/private/tickets`, input, {
       headers: {
         authorization: token,
       },
@@ -36,6 +36,32 @@ export async function createTicket(input: CreateTicketInput, token: string) {
 
     if (resp.status !== 201 && resp.data.error) {
       alert(`create ticket failed due to ${resp.data.error.message}`);
+    }
+
+    return resp.data.data;
+  } catch (error) {
+    console.log(error);
+    alert('internal server error, please contact tech support for help');
+  }
+}
+
+export async function getTickets(subscriberID: string, token: string) {
+  const baseBEURL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+  try {
+    const resp = await axios.get<CommonResponse<Ticket[]>>(
+      `${baseBEURL}/private/subscribers/${subscriberID}/draft-tickets `,
+      {
+        headers: {
+          authorization: token,
+        },
+        responseType: 'json',
+        validateStatus: (status) => status < 500,
+      },
+    );
+
+    if (resp.status !== 200 && resp.data.error) {
+      alert(`get tickets failed due to ${resp.data.error.message}`);
     }
 
     return resp.data.data;
