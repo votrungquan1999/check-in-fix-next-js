@@ -40,3 +40,7 @@ export const HeaderUserLogout = styled.div`
   position: absolute;
   right: 50px;
 `;
+
+export const TableContainerStyled = styled.div`
+  margin: 20px;
+`;

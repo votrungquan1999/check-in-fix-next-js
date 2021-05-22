@@ -19,7 +19,7 @@ export async function getCustomersByPhoneNumber(
 
   try {
     const resp = await axios.get<CommonResponse<Customer[]>>(
-      `${baseBEURL}/private/subscribers/${subscriberID}/customers/${phoneNumber}`,
+      `${baseBEURL}/private/subscribers/${subscriberID}/customer/${phoneNumber}`,
       {
         headers: {
           authorization: token,
@@ -41,7 +41,7 @@ export async function getCustomersByPhoneNumber(
 export async function getCustomers(subscriberID: string, token: string, phoneNumber?: string) {
   const baseBEURL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-  let reqURL = `${baseBEURL}/private/subscribers/${subscriberID}/customers`;
+  let reqURL = `${baseBEURL}/private/subscribers/${subscriberID}/customer`;
 
   if (phoneNumber) {
     reqURL += `?phone_number=${phoneNumber}`;
@@ -61,8 +61,6 @@ export async function getCustomers(subscriberID: string, token: string, phoneNum
     console.log(error.message);
     alert(`get customers error, please contact tech support for help`);
   }
-
-  return [];
 }
 
 export interface CreateCustomerInput {
@@ -80,7 +78,7 @@ export async function createCustomer(
   const baseBEURL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   const resp = await axios.post<CommonResponse<Customer>>(
-    `${baseBEURL}/private/subscribers/${subscriberID}/customers`,
+    `${baseBEURL}/private/subscribers/${subscriberID}/customer`,
     input,
     {
       headers: {

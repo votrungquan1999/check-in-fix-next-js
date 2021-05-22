@@ -133,6 +133,7 @@ function CustomerChosingForm({ customers }: CustomerChosingFormProps) {
 }
 
 export default withAuth(function Customers(props) {
+  const router = useRouter();
   const { user, employee } = props;
   // console.log(props.user, props.employee, '------------');
 
@@ -141,7 +142,16 @@ export default withAuth(function Customers(props) {
   const handleSubmitPhoneNumber = async (input: PhoneNumberInputResult) => {
     const token = await user.getIdToken();
     const customers = await getCustomers(employee.subscriber_id, token, input.phone);
-    console.log(customers);
+
+    if (customers === undefined) {
+      return;
+    }
+
+    if (!customers.length) {
+      router.push(`/create-customer`);
+      return;
+    }
+
     setCustomers(customers);
   };
 
