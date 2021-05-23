@@ -18,6 +18,7 @@ import {
   MainContainerContentstyles,
   MainContainerHeaderStyles,
   MainContainerSiderMenuStyled,
+  MainContainerSiderStyles,
   MainContainerStyles,
   PageNameStyled,
   StoreNameContainer,
@@ -26,6 +27,7 @@ import { Dashboard } from './Dashboard';
 import { Tickets } from './Tickets';
 import firebase from 'firebase';
 import { Customers } from './Customers';
+import { SpinningContainer } from '../../styles/commons';
 
 const pageNames = {
   1: 'Dashboard',
@@ -38,6 +40,7 @@ type contentKeys = '1' | '2' | '3';
 export default withAuth(function MainContainer({ employee, user }) {
   const [subscriber, setSubscriber] = useState<Subscriber>();
   const [currentTab, setCurrentTab] = useState<contentKeys>('1');
+  const [isCollapsedSider, setIsCollapseSider] = useState(false);
 
   const MainContainerContents = useMemo(() => {
     return {
@@ -63,12 +66,19 @@ export default withAuth(function MainContainer({ employee, user }) {
     getAndSetSubscriber();
   }, [employee, user]);
 
-  const handleClickMenu: MenuClickEventHandler = ({ key }) => {
+  const handleClickMenu = useCallback(({ key }) => {
     setCurrentTab(key as contentKeys);
-  };
+  }, []);
+
+  const handleCollapseSider = useCallback((collapsed: boolean) => {
+    setIsCollapseSider(collapsed);
+  }, []);
+  // const handleClickMenu: MenuClickEventHandler =
 
   return !subscriber ? (
-    <Spin />
+    <SpinningContainer>
+      <Spin size="large" />
+    </SpinningContainer>
   ) : (
     <Layout style={MainContainerStyles}>
       <Header style={MainContainerHeaderStyles}>
@@ -79,7 +89,7 @@ export default withAuth(function MainContainer({ employee, user }) {
         </HeaderUserLogout>
       </Header>
       <Layout hasSider={true}>
-        <Sider collapsible>
+        <Sider style={MainContainerSiderStyles} collapsible onCollapse={handleCollapseSider}>
           <MainContainerSiderMenuStyled>
             <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline" onClick={handleClickMenu}>
               <Menu.Item key="1" icon={<PieChartOutlined />}>
@@ -94,7 +104,7 @@ export default withAuth(function MainContainer({ employee, user }) {
             </Menu>
           </MainContainerSiderMenuStyled>
         </Sider>
-        <Layout>
+        <Layout style={{ marginLeft: isCollapsedSider ? 80 : 200, marginTop: 64, height: 'fit-content' }}>
           <Content>{MainContainerContents[currentTab]}</Content>
         </Layout>
       </Layout>

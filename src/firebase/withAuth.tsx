@@ -3,10 +3,10 @@ import firebase from 'firebase';
 import { NextRouter, useRouter } from 'next/router';
 import { Subtract } from 'utility-types';
 import { Spin } from 'antd';
-import { SpinningContainer } from './styles';
 
 import 'antd/dist/antd.css';
 import { Employee, getEmployeeInfo } from '../services/employee';
+import { SpinningContainer } from '../styles/commons';
 
 export interface WithAuthProps {
   user: firebase.User;

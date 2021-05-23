@@ -10,14 +10,8 @@ import MainContainer from '../src/Components/Layout/Containter';
 
 import 'antd/dist/antd.css';
 
-function Home(props: WithAuthProps) {
-  const handleClick = useCallback(() => {
-    firebase.auth().signOut();
-  }, []);
-
-  const { user } = props;
-
+function Home() {
   return <MainContainer />;
 }
 
-export default withAuth(Home);
+export default Home;

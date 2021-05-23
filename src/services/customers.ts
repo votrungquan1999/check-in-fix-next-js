@@ -56,6 +56,11 @@ export async function getCustomers(subscriberID: string, token: string, phoneNum
       validateStatus: (status) => status < 500,
     });
 
+    if (resp.status !== 200) {
+      alert(`get customer error, due to ${resp.data.error?.message}`);
+      return [];
+    }
+
     return resp.data.data;
   } catch (error) {
     console.log(error.message);

@@ -1,9 +1,14 @@
-import { Select, Spin, Table } from 'antd';
+import { DownOutlined } from '@ant-design/icons';
+import { Button, Dropdown, Input, Menu, Modal, Select, Spin, Table } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
-import React, { useEffect, useState } from 'react';
+import { TableRowSelection } from 'antd/lib/table/interface';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { WithAuthProps } from '../../firebase/withAuth';
 import { Customer, getCustomers } from '../../services/customers';
 import { Subscriber } from '../../services/subscribers';
+import { SpinningContainer } from '../../styles/commons';
+import { transformDataForSelection } from '../../utils/TableHelper';
+import { SendSMSToCustomerModal } from '../SendSMSModal';
 import { TableContainerStyled } from './styles';
 
 export interface CustomerProps extends WithAuthProps {
@@ -28,40 +33,94 @@ const columns: ColumnsType<any> = [
     title: 'Phone Number',
     dataIndex: 'phone_number',
   },
-  {
-    title: 'Actions',
-    key: 'actions',
-    fixed: 'right',
-    width: 200,
-    render: () => {
-      return (
-        <Select placeholder="Actions" style={{ width: 150 }}>
-          <Option value="send_sms">Send SMS</Option>
-        </Select>
-      );
-    },
-  },
 ];
 
 export function Customers(props: WithAuthProps) {
   const { employee, user } = props;
-  const [customers, setCustomers] = useState<Customer[]>();
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [sendMessageModalVisibility, setSendMessageModalVisibility] = useState<boolean>(false);
 
   useEffect(() => {
     const getAndSetCustomers = async () => {
       const { token } = await user.getIdTokenResult();
       const customers = await getCustomers(employee.subscriber_id, token);
-      setCustomers(customers);
+      if (customers !== undefined) {
+        setCustomers(customers);
+      }
     };
 
     getAndSetCustomers();
   }, [employee, user]);
 
-  return !customers ? (
-    <Spin />
+  const actionDropdown = useMemo(() => {
+    type actionKeys = '1';
+
+    const actions = {
+      1: () => {
+        setSendMessageModalVisibility(true);
+      },
+    };
+
+    const handleClickMenu = ({ key }: any) => {
+      actions[key as actionKeys]();
+    };
+
+    const menu = (
+      <Menu onClick={handleClickMenu}>
+        <Menu.Item key="1">Send SMS</Menu.Item>
+      </Menu>
+    );
+
+    return (
+      <Dropdown overlay={menu} disabled={!selectedRows.length}>
+        <Button>
+          Actions <DownOutlined />
+        </Button>
+      </Dropdown>
+    );
+  }, [selectedRows]);
+
+  const tableData = useMemo(() => {
+    if (customers) {
+      return transformDataForSelection(customers);
+    }
+
+    return;
+  }, [customers]);
+
+  const rowSelection = useMemo<TableRowSelection<any>>(() => {
+    const onSelectedRowChanges = (selectedRowKeys: React.Key[]) => {
+      setSelectedRows(selectedRowKeys as string[]);
+    };
+
+    return {
+      selectedRowKeys: selectedRows,
+      onChange: onSelectedRowChanges,
+    };
+  }, [selectedRows]);
+
+  return !tableData?.length ? (
+    <SpinningContainer>
+      <Spin size="large" />
+    </SpinningContainer>
   ) : (
-    <TableContainerStyled>
-      <Table columns={columns} dataSource={customers} scroll={{ x: '100%' }} />
-    </TableContainerStyled>
+    <div>
+      {actionDropdown}
+      <TableContainerStyled>
+        <Table
+          rowSelection={rowSelection}
+          columns={columns}
+          dataSource={tableData}
+          // scroll={{ y: window.innerHeight - 240 }}
+        />
+      </TableContainerStyled>
+      <SendSMSToCustomerModal
+        sendMessageModalVisibility={sendMessageModalVisibility}
+        setSendMessageModalVisibility={setSendMessageModalVisibility}
+        customerIDs={selectedRows}
+        user={user}
+      />
+    </div>
   );
 }

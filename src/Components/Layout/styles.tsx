@@ -34,6 +34,17 @@ export const PageNameStyled = styled.div`
 
 export const MainContainerHeaderStyles: CSSProperties = {
   display: 'flex',
+  position: 'fixed',
+  zIndex: 1,
+  width: '100%',
+};
+
+export const MainContainerSiderStyles: CSSProperties = {
+  overflow: 'auto',
+  height: 'calc(100vh - 64px)',
+  position: 'fixed',
+  left: 0,
+  top: 64,
 };
 
 export const HeaderUserLogout = styled.div`
@@ -42,5 +53,5 @@ export const HeaderUserLogout = styled.div`
 `;
 
 export const TableContainerStyled = styled.div`
-  margin: 20px;
+  margin: 0 20px;
 `;
