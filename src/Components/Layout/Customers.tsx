@@ -22,7 +22,7 @@ const columns: ColumnsType<any> = [
     title: 'Name',
     key: 'name',
     render: (value: Customer) => {
-      return <p>{value.first_name + ' ' + value.last_name}</p>;
+      return value.first_name + ' ' + value.last_name;
     },
   },
   {
@@ -112,6 +112,7 @@ export function Customers(props: WithAuthProps) {
           rowSelection={rowSelection}
           columns={columns}
           dataSource={tableData}
+          pagination={{ pageSize: 50 }}
           // scroll={{ y: window.innerHeight - 240 }}
         />
       </TableContainerStyled>
