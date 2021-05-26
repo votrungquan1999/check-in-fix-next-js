@@ -20,6 +20,7 @@ import { useRouter } from 'next/router';
 export default withAuth(function CreateCustomer(props) {
   const router = useRouter();
   const subscriberID = props.employee.subscriber_id;
+  const phoneNumber = router.query['phone_number'];
 
   const onFinish = async (value: any) => {
     const token = await props.user.getIdToken();
@@ -41,7 +42,11 @@ export default withAuth(function CreateCustomer(props) {
             <CreateCustomerColumn>
               <Typography.Title level={2}>Create New Customer</Typography.Title>
               <Form.Item name="phone_number" rules={[{ required: true, message: 'Input Phone Number' }]}>
-                <Input prefix={<PhoneOutlined className="site-form-item-icon" />} placeholder="Phone Number" />
+                <Input
+                  defaultValue={phoneNumber}
+                  prefix={<PhoneOutlined className="site-form-item-icon" />}
+                  placeholder="Phone Number"
+                />
               </Form.Item>
 
               <Form.Item name="first_name" rules={[{ required: true, message: 'Input First Name' }]}>

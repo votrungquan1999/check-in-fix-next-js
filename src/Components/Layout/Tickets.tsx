@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { WithAuthProps } from '../../firebase/withAuth';
 import { Subscriber } from '../../services/subscribers';
 import { getTickets, Ticket } from '../../services/tickets';
+import { uniq } from 'lodash/fp';
 
 export interface TicketProps extends WithAuthProps {
   subscriber: Subscriber | undefined;
@@ -24,7 +25,6 @@ const columns: ColumnsType<any> = [
   },
   {
     title: 'Phone Number',
-
     dataIndex: ['customer', 'phone_number'],
   },
   {
@@ -33,7 +33,6 @@ const columns: ColumnsType<any> = [
   },
   {
     title: 'Device Model',
-
     dataIndex: 'device_model',
   },
 ];
@@ -47,16 +46,25 @@ export function Tickets(props: TicketProps) {
       const { token } = await user.getIdTokenResult();
       const tickets = await getTickets(employee.subscriber_id, token);
       setTickets(tickets);
+      console.log(tickets);
     };
 
     getAndSetTickets();
   }, [employee, user]);
 
+  useEffect(() => {
+    if (!tickets?.length) {
+      return;
+    }
+
+    const customerIDs = uniq(tickets.map((ticket) => ticket.customer_id));
+  }, [tickets]);
+
   return !tickets ? (
     <Spin />
   ) : (
     <div>
-      <Table columns={columns} />
+      <Table columns={columns} dataSource={tickets} />
     </div>
   );
 }

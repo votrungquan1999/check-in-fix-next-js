@@ -7,7 +7,7 @@ import { WithAuthProps } from '../../firebase/withAuth';
 import { Customer, getCustomers } from '../../services/customers';
 import { Subscriber } from '../../services/subscribers';
 import { SpinningContainer } from '../../styles/commons';
-import { transformDataForSelection } from '../../utils/TableHelper';
+import { transformDataForSelection } from '../../utils/table';
 import { SendSMSToCustomerModal } from '../SendSMSModal';
 import { TableContainerStyled } from './styles';
 
@@ -17,29 +17,52 @@ export interface CustomerProps extends WithAuthProps {
 
 const { Option } = Select;
 
-const columns: ColumnsType<any> = [
-  {
-    title: 'Name',
-    key: 'name',
-    render: (value: Customer) => {
-      return value.first_name + ' ' + value.last_name;
-    },
-  },
-  {
-    title: 'Email',
-    dataIndex: 'email',
-  },
-  {
-    title: 'Phone Number',
-    dataIndex: 'phone_number',
-  },
-];
-
 export function Customers(props: WithAuthProps) {
   const { employee, user } = props;
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [sendMessageModalVisibility, setSendMessageModalVisibility] = useState<boolean>(false);
+  const [detailModalVisibility, setDetailModalVisibility] = useState(false);
+  const [currentCustomerID, setCurrentCustomerID] = useState<string>();
+
+  const columns = useMemo(() => {
+    const renderColumns: ColumnsType<any> = [
+      {
+        title: 'Name',
+        key: 'name',
+        render: (value: Customer) => {
+          return value.first_name + ' ' + value.last_name;
+        },
+      },
+      {
+        title: 'Email',
+        dataIndex: 'email',
+      },
+      {
+        title: 'Phone Number',
+        dataIndex: 'phone_number',
+      },
+      // {
+      //   title: 'Actions',
+      //   key: 'actions',
+      //   render: (value: Customer) => {
+      //     const menu = (
+      //       <Menu onClick={() => setCurrentCustomerID(value.id))}>
+      //         <Menu.Item key="1">Details</Menu.Item>
+      //       </Menu>
+      //     );
+      //     return (
+      //       <Dropdown overlay={menu} disabled={!selectedRows.length}>
+      //         <Button>
+      //           Actions <DownOutlined />
+      //         </Button>
+      //       </Dropdown>
+      //     );
+      //   },
+      // },
+    ];
+    return renderColumns;
+  }, []);
 
   useEffect(() => {
     const getAndSetCustomers = async () => {

@@ -1,14 +1,15 @@
 import { PhoneOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Typography } from 'antd';
+import { Button, Form, Input, Spin, Typography } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import Text from 'antd/lib/typography/Text';
 import Title from 'antd/lib/typography/Title';
 
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import NumberKeyboard from '../src/Components/NumberKeyboard';
 import withAuth from '../src/firebase/withAuth';
 import { Customer, getCustomers } from '../src/services/customers';
+import { SpinningContainer } from '../src/styles/commons';
 import {
   CustomerChosingBox,
   customerChosingPageStyles,
@@ -17,13 +18,14 @@ import {
   phoneNumberInputPageStyles,
   StyledCustomerChosingForm,
 } from '../src/styles/customers';
+import { transformPhoneNumberToDisplay } from '../src/utils/phoneNumber';
 
 interface PhoneNumberInputResult {
   phone: string;
 }
 
 interface PhoneNumberInputFormProps {
-  handleSubmitPhoneNumber: (value: any) => void;
+  handleSubmitPhoneNumber: (value: string) => void;
 }
 
 interface CustomerChosingFormProps {
@@ -32,22 +34,34 @@ interface CustomerChosingFormProps {
 
 function PhoneNumberInputForm({ handleSubmitPhoneNumber }: PhoneNumberInputFormProps) {
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [validationStatus, setValidationStatus] = useState<'error' | undefined>();
 
   const [form] = useForm();
 
-  const handleClickNumber = (value: number) => {
-    const newPhoneNumber = phoneNumber + value.toString();
+  const handleClickNumber = useCallback(
+    (value: number) => {
+      const newPhoneNumber = phoneNumber + value.toString();
+      setPhoneNumber(newPhoneNumber);
+      form.setFieldsValue({ phone: transformPhoneNumberToDisplay(newPhoneNumber) });
+      setValidationStatus(undefined);
+    },
+    [phoneNumber],
+  );
 
-    setPhoneNumber(newPhoneNumber);
+  const handleClickSubmit = useCallback(() => {
+    if (phoneNumber.length !== 10) {
+      setValidationStatus('error');
+      return;
+    }
 
-    form.setFieldsValue({ phone: newPhoneNumber });
-  };
+    handleSubmitPhoneNumber(phoneNumber);
+  }, [phoneNumber]);
 
-  console.log(phoneNumber);
+  // console.log(phoneNumber);
 
   return (
     <div style={phoneNumberInputPageStyles}>
-      <Form onFinish={handleSubmitPhoneNumber} style={phoneNumberFormStyles} form={form}>
+      <Form onFinish={handleClickSubmit} style={phoneNumberFormStyles} form={form}>
         <Typography.Title level={3} type={'secondary'}>
           Please enter your phone number
         </Typography.Title>
@@ -56,6 +70,8 @@ function PhoneNumberInputForm({ handleSubmitPhoneNumber }: PhoneNumberInputFormP
           name="phone"
           style={{ width: '100%' }}
           rules={[{ required: true, message: 'Please input your phone number!' }]}
+          validateStatus={validationStatus}
+          help={validationStatus ? 'Phone Number is invalid' : undefined}
         >
           <Input
             type={'text'}
@@ -135,27 +151,48 @@ function CustomerChosingForm({ customers }: CustomerChosingFormProps) {
 export default withAuth(function Customers(props) {
   const router = useRouter();
   const { user, employee } = props;
-  // console.log(props.user, props.employee, '------------');
-
   const [customers, setCustomers] = useState<Customer[]>();
+  const [loading, setLoading] = useState(true);
 
-  const handleSubmitPhoneNumber = async (input: PhoneNumberInputResult) => {
-    const token = await user.getIdToken();
-    const customers = await getCustomers(employee.subscriber_id, token, input.phone);
+  // console.log(router.query['phone_number']);
 
-    if (customers === undefined) {
-      return;
-    }
+  useEffect(() => {
+    const phoneNumber = router.query['phone_number'];
+    const getAndSetCustomers = async () => {
+      if (!phoneNumber || typeof phoneNumber !== 'string') {
+        setLoading(false);
+        return;
+      }
 
-    if (!customers.length) {
-      router.push(`/create-customer`);
-      return;
-    }
+      const token = await user.getIdToken();
+      const customers = await getCustomers(employee.subscriber_id, token, phoneNumber);
 
-    setCustomers(customers);
-  };
+      if (customers === undefined) {
+        return;
+      }
 
-  return !customers ? (
+      if (!customers.length) {
+        router.push(`/create-customer?phone_number=${phoneNumber}`);
+        return;
+      }
+
+      setCustomers(customers);
+      setLoading(false);
+    };
+
+    getAndSetCustomers();
+  }, [router]);
+
+  const handleSubmitPhoneNumber = useCallback(async (phoneNumber: string) => {
+    setLoading(true);
+    router.push('?phone_number=' + phoneNumber);
+  }, []);
+
+  return loading ? (
+    <SpinningContainer>
+      <Spin size="large" />
+    </SpinningContainer>
+  ) : !customers ? (
     <PhoneNumberInputForm handleSubmitPhoneNumber={handleSubmitPhoneNumber} />
   ) : (
     <CustomerChosingForm customers={customers} />
