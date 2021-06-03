@@ -45,12 +45,12 @@ export async function createTicket(input: CreateTicketInput, token: string) {
   }
 }
 
-export async function getTickets(subscriberID: string, token: string) {
+export async function getTicketsBySubcriberID(subscriberID: string, token: string) {
   const baseBEURL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   try {
     const resp = await axios.get<CommonResponse<Ticket[]>>(
-      `${baseBEURL}/private/subscribers/${subscriberID}/draft-tickets `,
+      `${baseBEURL}/private/tickets?subscriber_id=${subscriberID}`,
       {
         headers: {
           authorization: token,
@@ -66,7 +66,31 @@ export async function getTickets(subscriberID: string, token: string) {
 
     return resp.data.data;
   } catch (error) {
+    alert('internal server error, please contact tech support for help');
+    return [];
+  }
+}
+
+export async function getTicketsByCustomerID(customerID: string, token: string) {
+  const baseBEURL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+  try {
+    const resp = await axios.get<CommonResponse<Ticket[]>>(`${baseBEURL}/private/tickets?customer_id=${customerID}`, {
+      headers: {
+        authorization: token,
+      },
+      responseType: 'json',
+      validateStatus: (status) => status < 500,
+    });
+
+    if (resp.status !== 200 && resp.data.error) {
+      alert(`get tickets failed due to ${resp.data.error.message}`);
+    }
+
+    return resp.data.data;
+  } catch (error) {
     console.log(error);
     alert('internal server error, please contact tech support for help');
+    return [];
   }
 }

@@ -3,68 +3,35 @@ import { ColumnsType } from 'antd/lib/table';
 import { useEffect, useState } from 'react';
 import { WithAuthProps } from '../../firebase/withAuth';
 import { Subscriber } from '../../services/subscribers';
-import { getTickets, Ticket } from '../../services/tickets';
+import { getTicketsBySubcriberID, Ticket } from '../../services/tickets';
 import { uniq } from 'lodash/fp';
+import { TicketTable } from '../TicketTable';
+import { Customer, getCustomersByIDs } from '../../services/customers';
 
 export interface TicketProps extends WithAuthProps {
   subscriber: Subscriber | undefined;
 }
 
-const columns: ColumnsType<any> = [
-  {
-    title: 'Ticket ID',
-    dataIndex: 'id',
-  },
-  {
-    title: 'Status',
-    dataIndex: 'status',
-  },
-  {
-    title: 'Customer Name',
-    dataIndex: ['customer', 'name'],
-  },
-  {
-    title: 'Phone Number',
-    dataIndex: ['customer', 'phone_number'],
-  },
-  {
-    title: 'Service',
-    dataIndex: 'service',
-  },
-  {
-    title: 'Device Model',
-    dataIndex: 'device_model',
-  },
-];
-
 export function Tickets(props: TicketProps) {
   const { user, employee } = props;
   const [tickets, setTickets] = useState<Ticket[]>();
+  const [customers, setCustomers] = useState<Customer[]>();
 
   useEffect(() => {
-    const getAndSetTickets = async () => {
+    const getTicketsAndCustomers = async () => {
       const { token } = await user.getIdTokenResult();
-      const tickets = await getTickets(employee.subscriber_id, token);
+      const tickets = await getTicketsBySubcriberID(employee.subscriber_id, token);
       setTickets(tickets);
-      console.log(tickets);
+
+      const customerIDs = uniq(tickets.map((ticket) => ticket.customer_id));
+
+      const customers = await getCustomersByIDs(token, customerIDs);
+
+      setCustomers(customers);
     };
 
-    getAndSetTickets();
+    getTicketsAndCustomers();
   }, [employee, user]);
 
-  useEffect(() => {
-    if (!tickets?.length) {
-      return;
-    }
-
-    const customerIDs = uniq(tickets.map((ticket) => ticket.customer_id));
-  }, [tickets]);
-
-  return !tickets ? (
-    <Spin />
-  ) : (
-    <div>
-      <Table columns={columns} dataSource={tickets} />
-    </div>
-  );
+  return !tickets || !customers ? <Spin /> : <TicketTable tickets={tickets} customers={customers} />;
 }

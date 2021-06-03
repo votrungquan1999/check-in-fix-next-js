@@ -53,5 +53,12 @@ export const HeaderUserLogout = styled.div`
 `;
 
 export const TableContainerStyled = styled.div`
-  margin: 0 20px;
+  /* padding: 0 20px; */
+`;
+
+export const CustomerTableHeaderStyled = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 10px;
 `;

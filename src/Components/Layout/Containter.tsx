@@ -27,7 +27,7 @@ import { Dashboard } from './Dashboard';
 import { Tickets } from './Tickets';
 import firebase from 'firebase';
 import { Customers } from './Customers';
-import { SpinningContainer } from '../../styles/commons';
+import { CustomSpinner, SpinningContainer } from '../../styles/commons';
 
 const pageNames = {
   1: 'Dashboard',
@@ -76,9 +76,7 @@ export default withAuth(function MainContainer({ employee, user }) {
   // const handleClickMenu: MenuClickEventHandler =
 
   return !subscriber ? (
-    <SpinningContainer>
-      <Spin size="large" />
-    </SpinningContainer>
+    <CustomSpinner />
   ) : (
     <Layout style={MainContainerStyles}>
       <Header style={MainContainerHeaderStyles}>
@@ -105,7 +103,9 @@ export default withAuth(function MainContainer({ employee, user }) {
           </MainContainerSiderMenuStyled>
         </Sider>
         <Layout style={{ marginLeft: isCollapsedSider ? 80 : 200, marginTop: 64, height: 'fit-content' }}>
-          <Content>{MainContainerContents[currentTab]}</Content>
+          <Content style={{ width: `100%`, height: 'calc(100vh - 64px)', padding: '10px' }}>
+            {MainContainerContents[currentTab]}
+          </Content>
         </Layout>
       </Layout>
     </Layout>
