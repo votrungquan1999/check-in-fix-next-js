@@ -62,3 +62,9 @@ export const CustomerTableHeaderStyled = styled.div`
   justify-content: space-between;
   margin-bottom: 10px;
 `;
+
+export const CustomerTableActionContainerStyled = styled.div`
+  display: flex;
+  flex-direction: row;
+  column-gap: 30px;
+`;

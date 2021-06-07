@@ -9,7 +9,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import NumberKeyboard from '../src/Components/NumberKeyboard';
 import withAuth from '../src/firebase/withAuth';
 import { Customer, getCustomers } from '../src/services/customers';
-import { SpinningContainer } from '../src/styles/commons';
+import { CenterContainner } from '../src/styles/commons';
 import {
   CustomerChosingBox,
   customerChosingPageStyles,
@@ -189,9 +189,9 @@ export default withAuth(function Customers(props) {
   }, []);
 
   return loading ? (
-    <SpinningContainer>
+    <CenterContainner>
       <Spin size="large" />
-    </SpinningContainer>
+    </CenterContainner>
   ) : !customers ? (
     <PhoneNumberInputForm handleSubmitPhoneNumber={handleSubmitPhoneNumber} />
   ) : (

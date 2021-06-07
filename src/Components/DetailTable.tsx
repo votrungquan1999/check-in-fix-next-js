@@ -1,6 +1,7 @@
-import { Table } from 'antd';
+import { DownOutlined } from '@ant-design/icons';
+import { Button, Dropdown, Menu, Table } from 'antd';
 import { ColumnsType, ColumnType } from 'antd/lib/table';
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 interface DetailTableProps {
   fields: string[];
@@ -10,20 +11,8 @@ interface DetailTableProps {
 export function DetailTable(props: DetailTableProps) {
   const { fields, data } = props;
 
-  // const columns = useMemo(() => {
-  //   return fields.map((field) => {
-  //     const column: ColumnType<any> = {
-  //       title: field.toUpperCase(),
-  //       dataIndex: field,
-  //     };
-
-  //     return column;
-  //   });
-  // }, [fields]);
-
   const columns: ColumnsType<any> = [
     {
-      // title: 'Field',
       dataIndex: 'field',
     },
     {
@@ -38,5 +27,5 @@ export function DetailTable(props: DetailTableProps) {
     }));
   }, [fields, data]);
 
-  return <Table columns={columns} dataSource={displayData} />;
+  return <Table columns={columns} dataSource={displayData} pagination={{ disabled: true }} />;
 }

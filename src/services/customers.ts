@@ -1,13 +1,22 @@
 import axios, { AxiosError } from 'axios';
+import { isUndefined } from 'lodash';
+import { omit, omitBy } from 'lodash/fp';
+import customers from '../../pages/customers';
 import { CommonError, CommonResponse } from './common';
 
 export interface Customer {
+  id: string;
   phone_number: string;
-  email: string;
   first_name: string;
   last_name: string;
-  id: string;
+  email: string;
   subscriber_id: string;
+  address_line_1: string;
+  address_line_2: string;
+  city: string;
+  state: string;
+  zip_code: string;
+  country: string;
 }
 
 export async function searchCustomers(subscriberID: string, token: string, key: string) {
@@ -96,6 +105,8 @@ export async function getCustomersByIDs(token: string, customerIDs: string[]) {
       return [];
     }
 
+    console.log(resp.data);
+
     return resp.data.data;
   } catch (error) {
     console.log(error.message);
@@ -134,4 +145,35 @@ export async function createCustomer(
   }
 
   return resp.data.data;
+}
+
+export async function updateCustomer(id: string, updateCustomerInput: Customer, token: string) {
+  const baseBEURL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+  // const { id } = newCustomer;
+  // console.log(newCustomer);
+  const updateInput = omitBy(isUndefined)(updateCustomerInput);
+
+  try {
+    // const updateInput = omit('id')(newCustomer);
+
+    const resp = await axios.patch<CommonResponse<Customer>>(`${baseBEURL}/private/customers/${id}`, updateInput, {
+      headers: {
+        authorization: token,
+      },
+      responseType: 'json',
+      validateStatus: (status) => status < 500,
+    });
+
+    if (resp.status !== 200) {
+      alert(`update customer error, due to ${resp.data.error?.message}`);
+      return;
+    }
+
+    return resp.data.data;
+  } catch (error) {
+    console.log(error.message);
+    alert(`update customers error, please contact tech support for help`);
+    return;
+  }
 }

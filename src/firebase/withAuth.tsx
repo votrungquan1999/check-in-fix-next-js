@@ -6,7 +6,7 @@ import { Spin } from 'antd';
 
 import 'antd/dist/antd.css';
 import { Employee, getEmployeeInfo } from '../services/employee';
-import { SpinningContainer } from '../styles/commons';
+import { CenterContainner } from '../styles/commons';
 
 export interface WithAuthProps {
   user: firebase.User;
@@ -37,9 +37,9 @@ export default function withAuth<P extends WithAuthProps>(Component: React.Compo
     return user && employee ? (
       <Component {...(props as P)} user={user} employee={employee} />
     ) : (
-      <SpinningContainer>
+      <CenterContainner>
         <Spin size="large" />
-      </SpinningContainer>
+      </CenterContainner>
     );
   };
 }

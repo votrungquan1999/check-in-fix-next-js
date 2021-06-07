@@ -27,7 +27,7 @@ import { Dashboard } from './Dashboard';
 import { Tickets } from './Tickets';
 import firebase from 'firebase';
 import { Customers } from './Customers';
-import { CustomSpinner, SpinningContainer } from '../../styles/commons';
+import { CustomSpinner, CenterContainner } from '../../styles/commons';
 
 const pageNames = {
   1: 'Dashboard',
@@ -103,7 +103,7 @@ export default withAuth(function MainContainer({ employee, user }) {
           </MainContainerSiderMenuStyled>
         </Sider>
         <Layout style={{ marginLeft: isCollapsedSider ? 80 : 200, marginTop: 64, height: 'fit-content' }}>
-          <Content style={{ width: `100%`, height: 'calc(100vh - 64px)', padding: '10px' }}>
+          <Content style={{ width: `100%`, height: '100%', padding: '10px' }}>
             {MainContainerContents[currentTab]}
           </Content>
         </Layout>

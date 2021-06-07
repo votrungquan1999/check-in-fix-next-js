@@ -57,8 +57,6 @@ export function TicketTable(props: TicketTableProps) {
 function transformDataToDisplay(customers: Customer[], tickets: Ticket[]) {
   const mapIDCustomer = indexBy('id', customers);
 
-  // console.log(customers);
-
   const data = tickets.map((ticket) => {
     const currentCustomer = mapIDCustomer[ticket.customer_id];
 
@@ -72,8 +70,6 @@ function transformDataToDisplay(customers: Customer[], tickets: Ticket[]) {
         : undefined,
     };
   });
-
-  console.log(data);
 
   return data;
 }

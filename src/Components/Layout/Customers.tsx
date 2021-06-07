@@ -1,5 +1,6 @@
 import { DownOutlined } from '@ant-design/icons';
-import { Menu, Dropdown, Button } from 'antd';
+import { Menu, Dropdown, Button, Spin } from 'antd';
+import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { WithAuthProps } from '../../firebase/withAuth';
 import { Customer, getCustomers, searchCustomers } from '../../services/customers';
@@ -8,7 +9,7 @@ import { CustomSpinner } from '../../styles/commons';
 import { CustomerTable } from '../CustomerTable';
 import { SearchInput } from '../SearchInput';
 import { SendSMSToCustomerModal } from '../SendSMSModal';
-import { CustomerTableHeaderStyled } from './styles';
+import { CustomerTableActionContainerStyled, CustomerTableHeaderStyled } from './styles';
 
 export interface CustomerProps extends WithAuthProps {
   subscriber: Subscriber | undefined;
@@ -19,6 +20,7 @@ export function Customers(props: WithAuthProps) {
   const [customers, setCustomers] = useState<Customer[]>();
   const [sendMessageModalVisibility, setSendMessageModalVisibility] = useState<boolean>(false);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const getAndSetCustomers = async () => {
@@ -61,11 +63,26 @@ export function Customers(props: WithAuthProps) {
   }, [selectedRows]);
 
   const handleSearchCustomer = useCallback(async (value: string) => {
-    const { token } = await user.getIdTokenResult();
+    setLoading(true);
+    try {
+      const { token } = await user.getIdTokenResult();
 
-    const customers = await searchCustomers(employee.subscriber_id, token, value);
+      const customers = await searchCustomers(employee.subscriber_id, token, value);
 
-    setCustomers(customers);
+      setCustomers(customers);
+    } catch (error) {}
+
+    setLoading(false);
+  }, []);
+
+  const createCustomerButton = useMemo(() => {
+    return (
+      <Button>
+        <a href="/create-customer" target="_blank">
+          Create New Customer
+        </a>
+      </Button>
+    );
   }, []);
 
   return !customers ? (
@@ -73,10 +90,18 @@ export function Customers(props: WithAuthProps) {
   ) : (
     <div>
       <CustomerTableHeaderStyled>
-        {bulkSelectCustomerActionsDropdown}
+        <CustomerTableActionContainerStyled>
+          {bulkSelectCustomerActionsDropdown}
+          {createCustomerButton}
+        </CustomerTableActionContainerStyled>
         <SearchInput searchFunction={handleSearchCustomer} />
       </CustomerTableHeaderStyled>
-      <CustomerTable customers={customers} employee={employee} user={user} setSelectedRows={setSelectedRows} />
+      {loading ? (
+        <CustomSpinner />
+      ) : (
+        <CustomerTable customers={customers} employee={employee} user={user} setSelectedRows={setSelectedRows} />
+      )}
+
       <SendSMSToCustomerModal
         sendMessageModalVisibility={sendMessageModalVisibility}
         setSendMessageModalVisibility={setSendMessageModalVisibility}
