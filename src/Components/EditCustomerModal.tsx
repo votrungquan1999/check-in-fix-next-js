@@ -215,7 +215,7 @@ export function EditCustomerModal(props: CustomerDetailModalProps) {
   }, [customer, validationStatuses, updating, isUpdatedSuccessfully]);
 
   const resetModal = useCallback(() => {
-    setCustomer(undefined);
+    // setCustomer(undefined);
     form.resetFields();
     setIsCustomerEdited(false);
     setValidationStatuses({});
@@ -225,11 +225,15 @@ export function EditCustomerModal(props: CustomerDetailModalProps) {
   }, []);
 
   const handleOK = useCallback(() => {
+    console.log(isUpdatedSuccessfully);
     if (isUpdatedSuccessfully) {
+      console.log('here');
       resetModal();
+      return;
     }
 
     async function handleOkAsync() {
+      console.log(customer);
       if (!customer) {
         return;
       }
@@ -249,7 +253,7 @@ export function EditCustomerModal(props: CustomerDetailModalProps) {
     }
 
     handleOkAsync();
-  }, [form]);
+  }, [form, isUpdatedSuccessfully, user, customer]);
 
   return (
     <Modal

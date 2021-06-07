@@ -54,6 +54,7 @@ export function CustomerDetailModal(props: CustomerDetailModalProps) {
   const handleFinishUpdateCustomer = useCallback(async () => {
     setEditCustomer(undefined);
     setCustomer(undefined);
+
     if (!customerID) {
       return;
     }
