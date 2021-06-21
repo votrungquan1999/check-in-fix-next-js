@@ -10,6 +10,7 @@ import { ModalContentContainerStyled } from '../styles/Components/CustomerDetail
 import { DetailTable } from './DetailTable';
 import { EditCustomerModal } from './EditCustomerModal';
 import { DownOutlined } from '@ant-design/icons';
+import { transformPhoneNumberToDisplay } from '../utils/phoneNumber';
 
 interface CustomerDetailModalProps {
   // visibility: boolean;
@@ -82,7 +83,6 @@ export function CustomerDetailModal(props: CustomerDetailModalProps) {
 
     const actions = {
       1: () => {
-        console.log(customer);
         setEditCustomer(customer);
       },
     };
@@ -107,21 +107,31 @@ export function CustomerDetailModal(props: CustomerDetailModalProps) {
   }, [customer]);
 
   const modalContent = useMemo(() => {
-    return customer && tickets ? (
+    if (!customer || !tickets) {
+      return (
+        <ModalContentContainerStyled>
+          <CustomSpinner />
+        </ModalContentContainerStyled>
+      );
+    }
+
+    const detailCustomer: Customer = {
+      ...customer,
+      phone_number: transformPhoneNumberToDisplay(customer.phone_number) as string,
+      contact_phone_number: transformPhoneNumberToDisplay(customer.contact_phone_number),
+    };
+
+    return (
       <div>
         {customerDetailActions}
         <div>
           <DetailTable
-            data={customer}
+            data={detailCustomer}
             fields={['id', 'first_name', 'phone_number', 'last_name', 'email', 'contact_phone_number']}
           />
         </div>
         <TicketTable tickets={tickets} customers={[customer]} />
       </div>
-    ) : (
-      <ModalContentContainerStyled>
-        <CustomSpinner />
-      </ModalContentContainerStyled>
     );
   }, [customer, tickets]);
 

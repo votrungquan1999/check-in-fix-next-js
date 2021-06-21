@@ -2,6 +2,7 @@ import {
   DatabaseOutlined,
   DesktopOutlined,
   FileOutlined,
+  FormOutlined,
   PieChartOutlined,
   TeamOutlined,
   UserOutlined,
@@ -28,14 +29,16 @@ import { Tickets } from './Tickets';
 import firebase from 'firebase';
 import { Customers } from './Customers';
 import { CustomSpinner, CenterContainner } from '../../styles/commons';
+import { ReviewPage } from './Review';
 
 const pageNames = {
   1: 'Dashboard',
   2: 'Tickets',
   3: 'Customers',
+  4: 'Review',
 };
 
-type contentKeys = '1' | '2' | '3';
+type contentKeys = '1' | '2' | '3' | '4';
 
 export default withAuth(function MainContainer({ employee, user }) {
   const [subscriber, setSubscriber] = useState<Subscriber>();
@@ -47,6 +50,7 @@ export default withAuth(function MainContainer({ employee, user }) {
       1: <Dashboard employee={employee} user={user} />,
       2: <Tickets employee={employee} user={user} subscriber={subscriber} />,
       3: <Customers employee={employee} user={user} />,
+      4: <ReviewPage employee={employee} user={user} />,
     };
   }, [employee, subscriber, user]);
 
@@ -99,13 +103,21 @@ export default withAuth(function MainContainer({ employee, user }) {
               <Menu.Item key="3" icon={<UserOutlined />}>
                 Customers
               </Menu.Item>
+              <Menu.Item key="4" icon={<FormOutlined />}>
+                Review
+              </Menu.Item>
             </Menu>
           </MainContainerSiderMenuStyled>
         </Sider>
-        <Layout style={{ marginLeft: isCollapsedSider ? 80 : 200, marginTop: 64, height: 'fit-content' }}>
-          <Content style={{ width: `100%`, height: '100%', padding: '10px' }}>
-            {MainContainerContents[currentTab]}
-          </Content>
+        <Layout
+          style={{
+            marginLeft: isCollapsedSider ? 80 : 200,
+            marginTop: 64,
+            height: 'fit-content',
+            minHeight: 'calc(100vh-64px)',
+          }}
+        >
+          <Content style={{ padding: '10px' }}>{MainContainerContents[currentTab]}</Content>
         </Layout>
       </Layout>
     </Layout>

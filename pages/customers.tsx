@@ -35,6 +35,7 @@ interface CustomerChosingFormProps {
 function PhoneNumberInputForm({ handleSubmitPhoneNumber }: PhoneNumberInputFormProps) {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [validationStatus, setValidationStatus] = useState<'error' | undefined>();
+  const [isOk, setIsOk] = useState(false);
 
   const [form] = useForm();
 
@@ -42,11 +43,38 @@ function PhoneNumberInputForm({ handleSubmitPhoneNumber }: PhoneNumberInputFormP
     (value: number) => {
       const newPhoneNumber = phoneNumber + value.toString();
       setPhoneNumber(newPhoneNumber);
+
+      if (newPhoneNumber.length !== 10) {
+        setIsOk(false);
+      } else {
+        setIsOk(true);
+      }
+
       form.setFieldsValue({ phone: transformPhoneNumberToDisplay(newPhoneNumber) });
+
       setValidationStatus(undefined);
     },
     [phoneNumber],
   );
+
+  const handleDeleteOneNumber = useCallback(() => {
+    if (!phoneNumber.length) {
+      return;
+    }
+
+    const newPhoneNumber = phoneNumber.substr(0, phoneNumber.length - 1);
+    setPhoneNumber(newPhoneNumber);
+
+    if (newPhoneNumber.length !== 10) {
+      setIsOk(false);
+    } else {
+      setIsOk(true);
+    }
+
+    form.setFieldsValue({ phone: transformPhoneNumberToDisplay(newPhoneNumber) });
+
+    setValidationStatus(undefined);
+  }, [phoneNumber]);
 
   const handleClickSubmit = useCallback(() => {
     if (phoneNumber.length !== 10) {
@@ -61,7 +89,7 @@ function PhoneNumberInputForm({ handleSubmitPhoneNumber }: PhoneNumberInputFormP
 
   return (
     <div style={phoneNumberInputPageStyles}>
-      <Form onFinish={handleClickSubmit} style={phoneNumberFormStyles} form={form}>
+      <Form style={phoneNumberFormStyles} form={form}>
         <Typography.Title level={3} type={'secondary'}>
           Please enter your phone number
         </Typography.Title>
@@ -83,16 +111,18 @@ function PhoneNumberInputForm({ handleSubmitPhoneNumber }: PhoneNumberInputFormP
           />
         </Form.Item>
 
-        <NumberKeyboard handleClickNumber={handleClickNumber} />
+        <NumberKeyboard
+          handleClickNumber={handleClickNumber}
+          handleOK={handleClickSubmit}
+          isOK={isOk}
+          handleDelete={handleDeleteOneNumber}
+        />
 
-        <Form.Item style={{ width: '100%' }}>
+        {/* <Form.Item style={{ width: '100%' }}>
           <Button type="primary" size="large" htmlType="submit" style={{ width: '100%' }}>
             Submit
           </Button>
-          <Typography.Text style={{ fontSize: 20, float: 'right' }}>
-            Or <a href="/create-customer">register now!</a>
-          </Typography.Text>
-        </Form.Item>
+        </Form.Item> */}
       </Form>
     </div>
   );

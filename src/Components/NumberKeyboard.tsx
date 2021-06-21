@@ -1,11 +1,31 @@
 import styled from 'styled-components';
 
+import { Button } from 'antd';
+import { ArrowLeftOutlined, LeftSquareOutlined } from '@ant-design/icons';
+
 export interface NumberKeyboardProps {
   handleClickNumber: (value: number) => void;
+  isOK: boolean;
+  handleOK: () => any;
+  handleDelete: () => any;
 }
 
-export default function NumberKeyboard({ handleClickNumber }: NumberKeyboardProps) {
+export default function NumberKeyboard({ handleClickNumber, handleOK, isOK, handleDelete }: NumberKeyboardProps) {
   const NumberButtons: JSX.Element[] = [];
+
+  const OKButton = (
+    <OKButtonStyled onClick={handleOK} key={'ok'}>
+      <Button type="primary" size="large" disabled={!isOK} style={{ width: '100%', height: '100%' }}>
+        Submit
+      </Button>
+    </OKButtonStyled>
+  );
+
+  const DeleteButton = (
+    <DeleteButtonStyled onClick={handleDelete} key={'delete'}>
+      <ArrowLeftOutlined />
+    </DeleteButtonStyled>
+  );
 
   for (let i = 1; i < 10; i++) {
     const NumberButton = (
@@ -17,11 +37,15 @@ export default function NumberKeyboard({ handleClickNumber }: NumberKeyboardProp
     NumberButtons.push(NumberButton);
   }
 
+  NumberButtons.push(DeleteButton);
+
   NumberButtons.push(
     <NumberButtonStyled onClick={() => handleClickNumber(0)} key={0}>
       <NumberStyled>{0}</NumberStyled>
     </NumberButtonStyled>,
   );
+
+  NumberButtons.push(OKButton);
 
   return <NumberKeyboardContainer>{NumberButtons}</NumberKeyboardContainer>;
 }
@@ -46,6 +70,31 @@ const NumberButtonStyled = styled.div`
   align-items: center;
   justify-content: center;
   border: 1px solid #1c6ea4;
+
+  cursor: pointer !important;
+`;
+
+const OKButtonStyled = styled.div`
+  width: 113px;
+  height: 70px;
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+  /* border: 1px solid #1c6ea4; */
+
+  cursor: pointer !important;
+`;
+
+const DeleteButtonStyled = styled.div`
+  width: 113px;
+  height: 70px;
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #1c6ea4;
+  font-size: 60px;
 
   cursor: pointer !important;
 `;

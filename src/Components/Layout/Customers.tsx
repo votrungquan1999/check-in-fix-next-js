@@ -1,5 +1,6 @@
 import { DownOutlined } from '@ant-design/icons';
 import { Menu, Dropdown, Button, Spin } from 'antd';
+import { find, get } from 'lodash/fp';
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { WithAuthProps } from '../../firebase/withAuth';
@@ -20,6 +21,7 @@ export function Customers(props: WithAuthProps) {
   const [customers, setCustomers] = useState<Customer[]>();
   const [sendMessageModalVisibility, setSendMessageModalVisibility] = useState<boolean>(false);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [selectedCustomers, setSelectedCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -54,13 +56,13 @@ export function Customers(props: WithAuthProps) {
     );
 
     return (
-      <Dropdown overlay={menu} disabled={!selectedRows.length}>
+      <Dropdown overlay={menu} disabled={!selectedCustomers.length}>
         <Button>
           Actions <DownOutlined />
         </Button>
       </Dropdown>
     );
-  }, [selectedRows]);
+  }, [selectedCustomers]);
 
   const handleSearchCustomer = useCallback(async (value: string) => {
     setLoading(true);
@@ -85,6 +87,18 @@ export function Customers(props: WithAuthProps) {
     );
   }, []);
 
+  const handleRowsSelected = useCallback(
+    (rows: string[]) => {
+      // setSelectedRows(rows);
+      const selected = rows
+        .map((id) => find<Customer>((customer) => get('id')(customer) === id)(customers))
+        .filter((customer) => !!customer) as Customer[];
+
+      setSelectedCustomers(selected);
+    },
+    [customers],
+  );
+
   return !customers ? (
     <CustomSpinner />
   ) : (
@@ -99,13 +113,14 @@ export function Customers(props: WithAuthProps) {
       {loading ? (
         <CustomSpinner />
       ) : (
-        <CustomerTable customers={customers} employee={employee} user={user} setSelectedRows={setSelectedRows} />
+        <CustomerTable customers={customers} employee={employee} user={user} setSelectedRows={handleRowsSelected} />
       )}
 
       <SendSMSToCustomerModal
+        customers={selectedCustomers}
         sendMessageModalVisibility={sendMessageModalVisibility}
         setSendMessageModalVisibility={setSendMessageModalVisibility}
-        customerIDs={selectedRows}
+        // customerIDs={selectedRows}
         user={user}
       />
     </div>

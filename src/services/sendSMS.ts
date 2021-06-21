@@ -26,14 +26,14 @@ export async function sendSMSToCustomers(customerIDs: string[], token: string, m
     });
 
     if (resp.status !== 204) {
-      alert(`get customer error, due to ${resp.data.error?.message}`);
+      alert(`send sms to customer error, due to ${resp.data.error?.message}`);
       return false;
     }
 
     return true;
   } catch (error) {
     console.log(error.message);
-    alert(`get customers error, please contact tech support for help`);
+    alert(`send sms to customers error, please contact tech support for help`);
     return false;
   }
 }

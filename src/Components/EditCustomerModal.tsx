@@ -1,4 +1,4 @@
-import { Form, Input, Modal, Result } from 'antd';
+import { Form, FormInstance, Input, Modal, Result } from 'antd';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ModalContentContainerStyled } from '../styles/Components/CustomerDetailModal';
 import firebase from 'firebase';
@@ -7,6 +7,9 @@ import { Customer, updateCustomer } from '../services/customers';
 import { CustomResult, CustomSpinner } from '../styles/commons';
 import { get, isUndefined, omit, omitBy } from 'lodash/fp';
 import { useRouter } from 'next/router';
+import { PhoneNumberInput } from './input';
+import { trimExtraCharacterPhoneNumber, validatePhoneNumber } from '../utils/phoneNumber';
+import { FieldError } from 'rc-field-form/es/interface';
 
 interface CustomerDetailModalProps {
   // visibility: boolean;
@@ -30,7 +33,8 @@ export function EditCustomerModal(props: CustomerDetailModalProps) {
     }
 
     form.setFieldsValue({
-      phone_number: customer.phone_number,
+      phone_number: trimExtraCharacterPhoneNumber(customer.phone_number),
+      contact_phone_number: trimExtraCharacterPhoneNumber(customer.contact_phone_number),
       first_name: customer.first_name,
       last_name: customer.last_name,
       email: customer.email,
@@ -39,26 +43,18 @@ export function EditCustomerModal(props: CustomerDetailModalProps) {
       state: customer.state,
       country: customer.country,
     });
-  }, []);
+  }, [customer]);
 
   const handleOneFieldChanges = useCallback(
     (key: keyof Customer, value: string) => {
-      console.log(key);
       if (!customer) {
         return;
       }
 
-      const formValue = value ?? '';
-      const initValue = customer[key] ?? '';
+      let [formValue, initValue] = getInitValueAndFormValue(customer, value, key);
 
-      console.log(formValue, initValue);
+      const newValidationStatuses = validateFormValues(formValue, initValue, key, validationStatuses);
 
-      const newValidationStatuses = {
-        ...validationStatuses,
-        [key]: formValue === initValue ? undefined : 'warning',
-      };
-
-      // console.log(newValidationStatuses);
       let isEdited = false;
       for (const currentValue of Object.values(newValidationStatuses)) {
         if (currentValue) {
@@ -80,7 +76,6 @@ export function EditCustomerModal(props: CustomerDetailModalProps) {
           <CustomResult status="success" title="Update Customer Successfully" />;
         </ModalContentContainerStyled>
       );
-      return <Result status="success" title="Update Customer Successfully" />;
     }
 
     if (!customer || updating) {
@@ -89,17 +84,18 @@ export function EditCustomerModal(props: CustomerDetailModalProps) {
           <CustomSpinner />;
         </ModalContentContainerStyled>
       );
-      return <CustomSpinner />;
     }
 
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 5 },
+        sm: { span: 9 },
+        lg: { span: 5 },
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 19 },
+        sm: { span: 15 },
+        lg: { span: 19 },
       },
     };
 
@@ -118,12 +114,25 @@ export function EditCustomerModal(props: CustomerDetailModalProps) {
           <Form.Item
             name="phone_number"
             label="Phone Number"
-            rules={[{ required: true, message: 'Input Phone Number' }]}
+            help={get('phone_number')(validationStatuses) ? 'Invalid Phone Number' : undefined}
             validateStatus={get('phone_number')(validationStatuses) as 'warning' | undefined}
           >
-            <Input
+            <PhoneNumberInput
               placeholder="Phone Number"
               defaultValue={customer.phone_number}
+              prefix={<PhoneOutlined className="site-form-item-icon" />}
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="contact_phone_number"
+            label="Contact Phone Number"
+            help={get('phone_number')(validationStatuses) ? 'Invalid Phone Number' : undefined}
+            validateStatus={get('contact_phone_number')(validationStatuses) as 'warning' | undefined}
+          >
+            <PhoneNumberInput
+              placeholder="Phone Number"
+              defaultValue={customer.contact_phone_number}
               prefix={<PhoneOutlined className="site-form-item-icon" />}
             />
           </Form.Item>
@@ -132,7 +141,6 @@ export function EditCustomerModal(props: CustomerDetailModalProps) {
             validateStatus={get('first_name')(validationStatuses) as 'warning' | undefined}
             name="first_name"
             label="First Name"
-            rules={[{ required: true, message: 'Input First Name' }]}
           >
             <Input
               placeholder="First Name"
@@ -145,7 +153,6 @@ export function EditCustomerModal(props: CustomerDetailModalProps) {
             validateStatus={get('last_name')(validationStatuses) as 'warning' | undefined}
             name="last_name"
             label="Last Name"
-            rules={[{ required: true, message: 'Input Last Name' }]}
           >
             <Input
               placeholder="Last Name"
@@ -225,35 +232,32 @@ export function EditCustomerModal(props: CustomerDetailModalProps) {
   }, []);
 
   const handleOK = useCallback(() => {
-    console.log(isUpdatedSuccessfully);
-    if (isUpdatedSuccessfully) {
-      console.log('here');
-      resetModal();
-      return;
-    }
-
     async function handleOkAsync() {
-      console.log(customer);
       if (!customer) {
         return;
       }
 
-      setUpdating(true);
-      console.log(form.getFieldsValue());
-      const updateCustomerInput = form.getFieldsValue();
-      const { token } = await user.getIdTokenResult();
-      const newCustomer = await updateCustomer(customer.id, updateCustomerInput, token);
-
-      setUpdating(false);
-      if (!newCustomer) {
+      if (Object.values(validationStatuses).includes('error')) {
         return;
       }
 
-      setIsUpdatedSuccessfully(true);
+      setUpdating(true);
+
+      const updateCustomerInput = getUpdateCustomerInput(form);
+
+      const { token } = await user.getIdTokenResult();
+      const newCustomer = await updateCustomer(customer.id, updateCustomerInput, token);
+
+      if (!newCustomer) {
+        setUpdating(false);
+        return;
+      }
+
+      resetModal();
     }
 
     handleOkAsync();
-  }, [form, isUpdatedSuccessfully, user, customer]);
+  }, [form, user, customer, validationStatuses]);
 
   return (
     <Modal
@@ -264,11 +268,50 @@ export function EditCustomerModal(props: CustomerDetailModalProps) {
       onCancel={resetModal}
       width={'80%'}
     >
-      {/* <ModalContentContainerStyled style={{ position: 'relative' }}> */}
       {modalContent}
-      {/* </ModalContentContainerStyled> */}
     </Modal>
   );
 }
 
-// function
+function getInitValueAndFormValue(customerData: Customer, value: string, key: keyof Customer) {
+  let formValue = value ?? '';
+
+  if (key === 'phone_number' || key === 'contact_phone_number') {
+    formValue = trimExtraCharacterPhoneNumber(formValue) as string;
+  }
+
+  const initValue = customerData[key] ?? '';
+  return [formValue, initValue];
+}
+
+function validateFormValues(formValue: string, initValue: string, key: keyof Customer, validationStatuses: object) {
+  let validationStatus = formValue === initValue ? undefined : 'warning';
+
+  if (key === 'phone_number' || key === 'contact_phone_number') {
+    const validatePhoneNumberResult = validatePhoneNumber(formValue);
+    if (validatePhoneNumberResult) {
+      validationStatus = validatePhoneNumberResult;
+    }
+  }
+
+  const newValidationStatuses = {
+    ...validationStatuses,
+    [key]: validationStatus,
+  };
+
+  return newValidationStatuses;
+}
+
+function getUpdateCustomerInput(form: FormInstance) {
+  const updateCustomerInput = form.getFieldsValue() as Partial<Customer>;
+
+  updateCustomerInput.phone_number = updateCustomerInput.phone_number
+    ? trimExtraCharacterPhoneNumber(updateCustomerInput.phone_number)
+    : updateCustomerInput.phone_number;
+
+  updateCustomerInput.contact_phone_number = updateCustomerInput.contact_phone_number
+    ? trimExtraCharacterPhoneNumber(updateCustomerInput.contact_phone_number)
+    : updateCustomerInput.contact_phone_number;
+
+  return updateCustomerInput;
+}

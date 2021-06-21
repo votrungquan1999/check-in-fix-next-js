@@ -7,6 +7,7 @@ import { getTicketsBySubcriberID, Ticket } from '../../services/tickets';
 import { uniq } from 'lodash/fp';
 import { TicketTable } from '../TicketTable';
 import { Customer, getCustomersByIDs } from '../../services/customers';
+import { CustomSpinner } from '../../styles/commons';
 
 export interface TicketProps extends WithAuthProps {
   subscriber: Subscriber | undefined;
@@ -33,5 +34,7 @@ export function Tickets(props: TicketProps) {
     getTicketsAndCustomers();
   }, [employee, user]);
 
-  return !tickets || !customers ? <Spin /> : <TicketTable tickets={tickets} customers={customers} />;
+  // return <CustomSpinner />;
+
+  return !tickets || !customers ? <CustomSpinner /> : <TicketTable tickets={tickets} customers={customers} />;
 }

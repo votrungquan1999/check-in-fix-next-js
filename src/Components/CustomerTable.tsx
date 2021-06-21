@@ -5,6 +5,7 @@ import { TableRowSelection } from 'antd/lib/table/interface';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { WithAuthProps } from '../firebase/withAuth';
 import { Customer, searchCustomers } from '../services/customers';
+import { transformPhoneNumberToDisplay } from '../utils/phoneNumber';
 import { transformDataForSelection } from '../utils/table';
 import { CustomerDetailModal } from './CustomerDetailModal';
 import { TableContainerStyled } from './Layout/styles';
@@ -12,7 +13,7 @@ import { SendSMSToCustomerModal } from './SendSMSModal';
 
 interface CustomerTableProps extends WithAuthProps {
   customers: Customer[];
-  setSelectedRows?: React.Dispatch<React.SetStateAction<string[]>>;
+  setSelectedRows?: (rows: string[]) => any;
 }
 
 export function CustomerTable(props: CustomerTableProps) {
@@ -54,7 +55,6 @@ export function CustomerTable(props: CustomerTableProps) {
             };
           }}
           pagination={{ pageSize: 50 }}
-          // scroll={{ y: window.innerHeight - 240 }}
         />
       </TableContainerStyled>
 
@@ -83,5 +83,8 @@ const columns: ColumnsType<any> = [
   {
     title: 'Phone Number',
     dataIndex: 'phone_number',
+    render: (value: string | undefined) => {
+      return transformPhoneNumberToDisplay(value);
+    },
   },
 ];

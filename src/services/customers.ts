@@ -7,16 +7,17 @@ import { CommonError, CommonResponse } from './common';
 export interface Customer {
   id: string;
   phone_number: string;
+  contact_phone_number?: string;
   first_name: string;
   last_name: string;
-  email: string;
-  subscriber_id: string;
-  address_line_1: string;
-  address_line_2: string;
-  city: string;
-  state: string;
-  zip_code: string;
-  country: string;
+  email?: string;
+  subscriber_id?: string;
+  address_line_1?: string;
+  address_line_2?: string;
+  city?: string;
+  state?: string;
+  zip_code?: string;
+  country?: string;
 }
 
 export async function searchCustomers(subscriberID: string, token: string, key: string) {
@@ -72,6 +73,7 @@ export async function getCustomers(subscriberID: string, token: string, phoneNum
   } catch (error) {
     console.log(error.message);
     alert(`get customers error, please contact tech support for help`);
+    return [];
   }
 }
 
@@ -119,44 +121,52 @@ export interface CreateCustomerInput {
   phone_number: string;
   first_name: string;
   last_name: string;
-  email: string;
+  email?: string;
   subscriber_id: string;
+  address_line_1: string;
+  city: string;
+  state: string;
+  country: string;
+  zip_code: string;
 }
 
 export async function createCustomer(
   input: CreateCustomerInput,
-  subscriberID: string,
+  // subscriberID: string,
   token: string,
-): Promise<Customer> {
+) {
   const baseBEURL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-  input.subscriber_id = subscriberID;
+  // input.subscriber_id = subscriberID;
 
-  const resp = await axios.post<CommonResponse<Customer>>(`${baseBEURL}/private/customers`, input, {
-    headers: {
-      authorization: token,
-    },
-    responseType: 'json',
-    validateStatus: (status) => status < 500,
-  });
+  try {
+    const resp = await axios.post<CommonResponse<Customer>>(`${baseBEURL}/private/customers`, input, {
+      headers: {
+        authorization: token,
+      },
+      responseType: 'json',
+      validateStatus: (status) => status < 500,
+    });
 
-  if (resp.data.error) {
-    throw Error(resp.data.error.message);
+    if (resp.status !== 201) {
+      alert(`update customer error, due to ${resp.data.error?.message}`);
+      return;
+    }
+
+    return resp.data.data;
+  } catch (error) {
+    console.log(error.message);
+    alert(`update customers error, please contact tech support for help`);
+    return;
   }
-
-  return resp.data.data;
 }
 
-export async function updateCustomer(id: string, updateCustomerInput: Customer, token: string) {
+export async function updateCustomer(id: string, updateCustomerInput: Partial<Customer>, token: string) {
   const baseBEURL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-  // const { id } = newCustomer;
-  // console.log(newCustomer);
   const updateInput = omitBy(isUndefined)(updateCustomerInput);
 
   try {
-    // const updateInput = omit('id')(newCustomer);
-
     const resp = await axios.patch<CommonResponse<Customer>>(`${baseBEURL}/private/customers/${id}`, updateInput, {
       headers: {
         authorization: token,
