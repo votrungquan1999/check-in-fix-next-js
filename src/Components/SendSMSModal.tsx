@@ -89,7 +89,7 @@ export function SendSMSToCustomerModal(props: SendSMSModalProps) {
       customSMSBody = customSMSBody.replace('{last_name}', `${customer.last_name}`);
       console.log(customSMSBody);
 
-      const isSuccessful = await sendSMSToCustomers(customerIDs, token, customSMSBody);
+      const isSuccessful = await sendSMSToCustomers([customerID], token, customSMSBody);
       if (!isSuccessful) {
         failCustomers.push(customer);
       }
