@@ -1,6 +1,9 @@
+import { ConsoleSqlOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Rate, Result, Typography } from 'antd';
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { WithAuthProps } from '../../src/firebase/withAuth';
+import { getRatingPlatformByReviewID, RatingPlatforms } from '../../src/services/ratingPlatforms';
 import { feedbackReview, getReviewByID, rateReview, Review } from '../../src/services/reviews';
 import { CustomResult, CustomSpinner, FullHeightContainter } from '../../src/styles/commons';
 import { FeedbackContainerStyled, RatingContainerStyled } from '../../src/styles/reviews/[id]';
@@ -102,18 +105,18 @@ export default function CustomerReview() {
     );
   }, [review]);
 
-  const HasGoodFeedbackContainer = useMemo(() => {
-    return (
-      <FullHeightContainter>
-        <CustomResult
-          status="success"
-          title="Rated Successfully"
-          subTitle="Please go to Google Play or Facebook page to rate us!"
-        />
-        ;
-      </FullHeightContainter>
-    );
-  }, [review]);
+  // const HasGoodFeedbackContainer = useMemo(() => {
+  //   return (
+  //     <FullHeightContainter>
+  //       <CustomResult
+  //         status="success"
+  //         title="Rated Successfully"
+  //         subTitle="Please go to Google Play or Facebook page to rate us!"
+  //       />
+  //       ;
+  //     </FullHeightContainter>
+  //   );
+  // }, [review]);
 
   const ReviewSuccessfullyContainer = useMemo(() => {
     return (
@@ -136,7 +139,7 @@ export default function CustomerReview() {
   }
 
   if (review.rating >= 4) {
-    return HasGoodFeedbackContainer;
+    return <HasGoodFeedbackContainer reviewID={review.id} />;
   }
 
   if (!review.is_reviewed) {
@@ -144,4 +147,79 @@ export default function CustomerReview() {
   }
 
   return ReviewSuccessfullyContainer;
+}
+
+interface HasGoodFeedbackContainerProps {
+  reviewID: string;
+}
+function HasGoodFeedbackContainer(props: HasGoodFeedbackContainerProps) {
+  const { reviewID } = props;
+  const [ratingPlatforms, setRatingPlatforms] = useState<RatingPlatforms[]>();
+
+  useEffect(() => {
+    async function getRatingPlatforms() {
+      if (!reviewID) {
+        return;
+      }
+
+      const ratingPlatformsList = await getRatingPlatformByReviewID(reviewID);
+      if (!ratingPlatformsList) {
+        return;
+      }
+
+      setRatingPlatforms(ratingPlatformsList);
+    }
+
+    getRatingPlatforms();
+  }, [reviewID]);
+
+  const ratingPlatformLinks = useMemo(() => {
+    if (!ratingPlatforms) {
+      return;
+    }
+
+    // const editedRatingPLatform = [...ratingPlatforms, ...ratingPlatforms];
+
+    const ratingPlatformComponents = ratingPlatforms.map((platform, index) => {
+      return (
+        <div className="flex flex-row mr-0.5">
+          <div className="mr-0.5">
+            <a href={platform.url} target="_blank">{`${platform.name}`}</a>
+          </div>
+          <div>{index === ratingPlatforms.length - 1 ? <p /> : <p> or </p>}</div>
+        </div>
+      );
+    });
+
+    return (
+      <div className="inline-block">
+        <div className="flex flex-row">{ratingPlatformComponents}</div>
+      </div>
+    );
+  }, [ratingPlatforms]);
+
+  const subTitle = useMemo(() => {
+    if (!ratingPlatformLinks) {
+      return;
+    }
+
+    return <div>Please go to {ratingPlatformLinks}to rate us!</div>;
+  }, [ratingPlatformLinks]);
+
+  console.log(ratingPlatforms);
+  if (!ratingPlatforms) {
+    return (
+      <div className="h-screen">
+        <CustomSpinner />
+      </div>
+    );
+  }
+
+  console.log('get here');
+
+  return (
+    <div className="h-screen">
+      <CustomResult status="success" title="Rated Successfully" subTitle={subTitle} />;
+    </div>
+  );
 }

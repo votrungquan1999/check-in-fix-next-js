@@ -11,7 +11,6 @@ export interface Review {
 }
 
 export async function createReviewsByCustomerIDs(customerIDs: string[], token: string) {
-  console.log('get here');
   const baseBEURL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   const reqURL = `${baseBEURL}/private/reviews`;

@@ -28,6 +28,9 @@
   "devDependencies": {
     "@types/lodash": "^4.14.170",
     "@types/react": "^17.0.3",
-    "@types/styled-components": "^5.1.9"
+    "@types/styled-components": "^5.1.9",
+    "autoprefixer": "^10.2.6",
+    "postcss": "^8.3.5",
+    "tailwindcss": "^2.2.2"
   }
 }
