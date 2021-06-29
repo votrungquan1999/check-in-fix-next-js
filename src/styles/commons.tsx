@@ -10,22 +10,38 @@ export const CenterContainner = styled.div`
   justify-content: center;
 `;
 
+export const MainContainerFullHeightStyled = styled.div`
+  height: calc(100vh - 104px);
+`;
+
+export function MainContainerLoadingStyled() {
+  const LoadingContainter = styled.div`
+    height: calc(100vh - 104px);
+  `;
+
+  return (
+    <LoadingContainter>
+      <CustomSpinner />
+    </LoadingContainter>
+  );
+}
+
 export const FullHeightContainter = styled.div`
   height: 100vh;
 `;
 
 export function CustomSpinner(props: SpinProps | SpinState | { children: ReactElement }) {
   return (
-    <CenterContainner>
+    <div className="h-full flex items-center justify-center">
       <Spin {...props} size="large" />
-    </CenterContainner>
+    </div>
   );
 }
 
 export function CustomResult(props: ResultProps) {
   return (
-    <CenterContainner>
+    <div className="h-full flex items-center justify-center">
       <Result {...props} />
-    </CenterContainner>
+    </div>
   );
 }

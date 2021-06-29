@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import 'antd/dist/antd.css';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { loginFormButtonStyles, loginFormStyles, loginPageStyles } from '../src/styles/login';
+import { useEffect } from 'react';
 
 export default function Login() {
   const router = useRouter();
@@ -22,9 +23,19 @@ export default function Login() {
       } else {
         alert(errorMessage);
       }
-      console.log(error);
+      console.log(errorMessage);
     }
   };
+
+  useEffect(() => {
+    if (firebase.apps.length) {
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          router.push('/');
+        }
+      });
+    }
+  }, []);
 
   return (
     <div style={loginPageStyles}>

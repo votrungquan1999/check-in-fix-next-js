@@ -1,6 +1,5 @@
 import Table, { ColumnsType } from 'antd/lib/table';
 import React from 'react';
-import { Customer } from '../services/customers';
 import { Review } from '../services/reviews';
 import { TableContainerStyled } from './Layout/styles';
 
@@ -25,6 +24,7 @@ const columns: ColumnsType<any> = [
     title: 'Customer ID',
     dataIndex: 'customer_id',
     width: 250,
+    ellipsis: true,
   },
   {
     title: 'Rating',

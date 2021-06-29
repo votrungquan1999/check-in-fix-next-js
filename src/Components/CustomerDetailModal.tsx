@@ -1,10 +1,9 @@
-import { Button, Dropdown, Input, Menu, Modal, Spin, Typography } from 'antd';
+import { Button, Dropdown, Menu, Modal } from 'antd';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { sendSMSToCustomers } from '../services/sendSMS';
 import firebase from 'firebase';
-import { Customer, getCustomersByIDs } from '../services/customers';
+import { Customer, getCustomerDetailByID } from '../services/customers';
 import { getTicketsByCustomerID, Ticket } from '../services/tickets';
-import { CustomSpinner, CenterContainner } from '../styles/commons';
+import { CustomSpinner } from '../styles/commons';
 import { TicketTable } from './TicketTable';
 import { ModalContentContainerStyled } from '../styles/Components/CustomerDetailModal';
 import { DetailTable } from './DetailTable';
@@ -13,17 +12,14 @@ import { DownOutlined } from '@ant-design/icons';
 import { transformPhoneNumberToDisplay } from '../utils/phoneNumber';
 
 interface CustomerDetailModalProps {
-  // visibility: boolean;
   customerID?: string;
-  subscriber_id: string;
+  subscriberID: string;
   user: firebase.User;
   setDetailCustomerID: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
 
-const { Paragraph } = Typography;
-
 export function CustomerDetailModal(props: CustomerDetailModalProps) {
-  const { customerID, user, subscriber_id, setDetailCustomerID } = props;
+  const { customerID, user, setDetailCustomerID } = props;
   const [customer, setCustomer] = useState<Customer>();
   const [tickets, setTickets] = useState<Ticket[]>();
   const [editCustomer, setEditCustomer] = useState<Customer>();
@@ -37,7 +33,7 @@ export function CustomerDetailModal(props: CustomerDetailModalProps) {
 
       const { token } = await user.getIdTokenResult();
 
-      const [customer] = await getCustomersByIDs(token, [customerID]);
+      const customer = await getCustomerDetailByID(customerID, token);
       if (!customer) {
         alert('get customer detail error, please try again or contact tech support!');
         return;
@@ -50,7 +46,7 @@ export function CustomerDetailModal(props: CustomerDetailModalProps) {
     }
 
     getCustomerAndTickets();
-  }, [customerID, user, subscriber_id]);
+  }, [customerID, user, setTickets, setCustomer]);
 
   const handleFinishUpdateCustomer = useCallback(async () => {
     setEditCustomer(undefined);
@@ -62,13 +58,13 @@ export function CustomerDetailModal(props: CustomerDetailModalProps) {
 
     const { token } = await user.getIdTokenResult();
 
-    const [customer] = await getCustomersByIDs(token, [customerID]);
+    const customer = await getCustomerDetailByID(customerID, token);
     if (!customer) {
       alert('get customer detail error, please try again or contact tech support!');
       return;
     }
     setCustomer(customer);
-  }, [customerID, user, subscriber_id]);
+  }, [customerID, user, setEditCustomer, setCustomer]);
 
   const resetModal = useCallback(() => {
     setDetailCustomerID(undefined);
@@ -137,15 +133,8 @@ export function CustomerDetailModal(props: CustomerDetailModalProps) {
 
   return (
     <Modal title="Customer Detail" visible={!!customerID} onOk={resetModal} onCancel={resetModal} width={'80%'}>
-      {/* <ModalContentContainerStyled style={{ position: 'relative' }}> */}
       {modalContent}
-      {/* </ModalContentContainerStyled> */}
-      <EditCustomerModal
-        finishUpdateCustomer={handleFinishUpdateCustomer}
-        setCustomer={setEditCustomer}
-        customer={editCustomer}
-        user={user}
-      />
+      <EditCustomerModal finishUpdateCustomer={handleFinishUpdateCustomer} customer={editCustomer} user={user} />
     </Modal>
   );
 }

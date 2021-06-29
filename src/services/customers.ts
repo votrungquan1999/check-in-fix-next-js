@@ -1,8 +1,7 @@
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { isUndefined } from 'lodash';
-import { omit, omitBy } from 'lodash/fp';
-import customers from '../../pages/customers';
-import { CommonError, CommonResponse } from './common';
+import { omitBy } from 'lodash/fp';
+import { CommonResponse } from './common';
 
 export interface Customer {
   id: string;
@@ -184,6 +183,60 @@ export async function updateCustomer(id: string, updateCustomerInput: Partial<Cu
   } catch (error) {
     console.log(error.message);
     alert(`update customers error, please contact tech support for help`);
+    return;
+  }
+}
+
+export async function deleteCustomersByIDs(IDs: string[], token: string) {
+  const baseBEURL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+  const deleteCustomersPayload = {
+    customers: IDs.map((id) => ({ id })),
+  };
+
+  try {
+    const resp = await axios.delete<CommonResponse<Customer>>(`${baseBEURL}/private/customers`, {
+      data: deleteCustomersPayload,
+      headers: {
+        authorization: token,
+      },
+      responseType: 'json',
+      validateStatus: (status) => status < 500,
+    });
+
+    if (resp.status !== 200) {
+      alert(`delete customer error, due to ${resp.data.error?.message}`);
+      return;
+    }
+
+    return resp.data.data;
+  } catch (error) {
+    console.log(error);
+    alert(`delete customers error, please contact tech support for help`);
+    return;
+  }
+}
+
+export async function getCustomerDetailByID(id: string, token: string) {
+  const baseBEURL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  try {
+    const resp = await axios.get<CommonResponse<Customer>>(`${baseBEURL}/private/customers/${id}`, {
+      headers: {
+        authorization: token,
+      },
+      responseType: 'json',
+      validateStatus: (status) => status < 500,
+    });
+
+    if (resp.status !== 200) {
+      alert(`get detail customer error, due to ${resp.data.error?.message}`);
+      return;
+    }
+
+    return resp.data.data;
+  } catch (error) {
+    console.log(error);
+    alert(`get detail customer error, please contact tech support for help`);
     return;
   }
 }

@@ -1,6 +1,5 @@
 import Search from 'antd/lib/input/Search';
-import React, { useState, useCallback } from 'react';
-import { searchCustomers } from '../services/customers';
+import React, { useCallback } from 'react';
 
 interface SearchInputProps {
   searchFunction: (value: string) => any;
@@ -11,14 +10,6 @@ export function SearchInput(props: SearchInputProps) {
 
   const onSearch = useCallback(
     (searchInput) => {
-      // async function handleSearch() {
-      //   const values = await searchFunction(searchInput);
-
-      //   setSearchResult(values);
-      // }
-
-      // handleSearch();
-
       searchFunction(searchInput);
     },
     [searchFunction],

@@ -1,26 +1,23 @@
-import { Form, FormInstance, Input, Modal, Result } from 'antd';
+import { Form, FormInstance, Input, Modal } from 'antd';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ModalContentContainerStyled } from '../styles/Components/CustomerDetailModal';
 import firebase from 'firebase';
 import { PhoneOutlined, EditOutlined, MailOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { Customer, updateCustomer } from '../services/customers';
 import { CustomResult, CustomSpinner } from '../styles/commons';
-import { get, isUndefined, omit, omitBy } from 'lodash/fp';
-import { useRouter } from 'next/router';
+import { get, isNil } from 'lodash/fp';
 import { PhoneNumberInput } from './input';
 import { trimExtraCharacterPhoneNumber, validatePhoneNumber } from '../utils/phoneNumber';
-import { FieldError } from 'rc-field-form/es/interface';
 
 interface CustomerDetailModalProps {
   // visibility: boolean;
   customer?: Customer;
   user: firebase.User;
-  setCustomer: React.Dispatch<React.SetStateAction<Customer | undefined>>;
   finishUpdateCustomer: () => any;
 }
 
 export function EditCustomerModal(props: CustomerDetailModalProps) {
-  const { customer, setCustomer, user, finishUpdateCustomer } = props;
+  const { customer, user, finishUpdateCustomer } = props;
   const [form] = Form.useForm();
   const [validationStatuses, setValidationStatuses] = useState({});
   const [isCustomerEdited, setIsCustomerEdited] = useState<boolean>(false);
@@ -50,6 +47,7 @@ export function EditCustomerModal(props: CustomerDetailModalProps) {
       if (!customer) {
         return;
       }
+      console.log(key, typeof value, value.length);
 
       let [formValue, initValue] = getInitValueAndFormValue(customer, value, key);
 
@@ -63,6 +61,7 @@ export function EditCustomerModal(props: CustomerDetailModalProps) {
         }
       }
 
+      console.log('get here');
       setIsCustomerEdited(isEdited);
       setValidationStatuses(newValidationStatuses);
     },
@@ -114,7 +113,7 @@ export function EditCustomerModal(props: CustomerDetailModalProps) {
           <Form.Item
             name="phone_number"
             label="Phone Number"
-            help={get('phone_number')(validationStatuses) ? 'Invalid Phone Number' : undefined}
+            help={get('phone_number')(validationStatuses) === 'error' ? 'Invalid Phone Number' : undefined}
             validateStatus={get('phone_number')(validationStatuses) as 'warning' | undefined}
           >
             <PhoneNumberInput
@@ -219,7 +218,7 @@ export function EditCustomerModal(props: CustomerDetailModalProps) {
         </Form>
       </div>
     );
-  }, [customer, validationStatuses, updating, isUpdatedSuccessfully]);
+  }, [customer, validationStatuses, updating, isUpdatedSuccessfully, form]);
 
   const resetModal = useCallback(() => {
     // setCustomer(undefined);
@@ -274,7 +273,7 @@ export function EditCustomerModal(props: CustomerDetailModalProps) {
 }
 
 function getInitValueAndFormValue(customerData: Customer, value: string, key: keyof Customer) {
-  let formValue = value ?? '';
+  let formValue = isNil(value) ? '' : value;
 
   if (key === 'phone_number' || key === 'contact_phone_number') {
     formValue = trimExtraCharacterPhoneNumber(formValue) as string;

@@ -1,6 +1,5 @@
-import { DownOutlined } from '@ant-design/icons';
-import { Button, Dropdown, Menu, Table } from 'antd';
-import { ColumnsType, ColumnType } from 'antd/lib/table';
+import { Table } from 'antd';
+import { ColumnsType } from 'antd/lib/table';
 import React, { useMemo } from 'react';
 
 interface DetailTableProps {

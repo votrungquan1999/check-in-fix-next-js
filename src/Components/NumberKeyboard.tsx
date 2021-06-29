@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 import { Button } from 'antd';
-import { ArrowLeftOutlined, LeftSquareOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined } from '@ant-design/icons';
 
 export interface NumberKeyboardProps {
   handleClickNumber: (value: number) => void;

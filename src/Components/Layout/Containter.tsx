@@ -1,22 +1,12 @@
-import {
-  DatabaseOutlined,
-  DesktopOutlined,
-  FileOutlined,
-  FormOutlined,
-  PieChartOutlined,
-  TeamOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
-import { Breadcrumb, Button, Layout, Menu, Spin } from 'antd';
-import { MenuClickEventHandler } from 'rc-menu/lib/interface';
-import { Content, Footer, Header } from 'antd/lib/layout/layout';
+import { DatabaseOutlined, FormOutlined, PieChartOutlined, UserOutlined } from '@ant-design/icons';
+import { Button, Layout, Menu } from 'antd';
+import { Content, Header } from 'antd/lib/layout/layout';
 import Sider from 'antd/lib/layout/Sider';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import withAuth from '../../firebase/withAuth';
 import { getSubscriber, Subscriber } from '../../services/subscribers';
 import {
   HeaderUserLogout,
-  MainContainerContentstyles,
   MainContainerHeaderStyles,
   MainContainerSiderMenuStyled,
   MainContainerSiderStyles,
@@ -28,7 +18,7 @@ import { Dashboard } from './Dashboard';
 import { Tickets } from './Tickets';
 import firebase from 'firebase';
 import { Customers } from './Customers';
-import { CustomSpinner, CenterContainner } from '../../styles/commons';
+import { CustomSpinner } from '../../styles/commons';
 import { ReviewPage } from './Review';
 
 const pageNames = {
@@ -77,10 +67,11 @@ export default withAuth(function MainContainer({ employee, user }) {
   const handleCollapseSider = useCallback((collapsed: boolean) => {
     setIsCollapseSider(collapsed);
   }, []);
-  // const handleClickMenu: MenuClickEventHandler =
 
   return !subscriber ? (
-    <CustomSpinner />
+    <div className="h-screen">
+      <CustomSpinner />
+    </div>
   ) : (
     <Layout style={MainContainerStyles}>
       <Header style={MainContainerHeaderStyles}>
@@ -114,10 +105,9 @@ export default withAuth(function MainContainer({ employee, user }) {
             marginLeft: isCollapsedSider ? 80 : 200,
             marginTop: 64,
             height: 'fit-content',
-            minHeight: 'calc(100vh-64px)',
           }}
         >
-          <Content style={{ padding: '10px' }}>{MainContainerContents[currentTab]}</Content>
+          <Content style={{ padding: '20px' }}>{MainContainerContents[currentTab]}</Content>
         </Layout>
       </Layout>
     </Layout>

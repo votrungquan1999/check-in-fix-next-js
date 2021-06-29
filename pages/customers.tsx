@@ -1,28 +1,24 @@
 import { PhoneOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Spin, Typography } from 'antd';
+import { Form, Input, Spin, Typography } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import Text from 'antd/lib/typography/Text';
 import Title from 'antd/lib/typography/Title';
-
+import { isNil } from 'lodash/fp';
 import { useRouter } from 'next/router';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import NumberKeyboard from '../src/Components/NumberKeyboard';
-import withAuth from '../src/firebase/withAuth';
+import withAuth, { WithAuthProps } from '../src/firebase/withAuth';
 import { Customer, getCustomers } from '../src/services/customers';
-import { CenterContainner } from '../src/styles/commons';
+import { CenterContainner, CustomSpinner } from '../src/styles/commons';
 import {
   CustomerChosingBox,
   customerChosingPageStyles,
   InnerChosingBox,
   phoneNumberFormStyles,
-  phoneNumberInputPageStyles,
+  PhoneNumberInputPageStyled,
   StyledCustomerChosingForm,
 } from '../src/styles/customers';
 import { transformPhoneNumberToDisplay } from '../src/utils/phoneNumber';
-
-interface PhoneNumberInputResult {
-  phone: string;
-}
 
 interface PhoneNumberInputFormProps {
   handleSubmitPhoneNumber: (value: string) => void;
@@ -85,18 +81,15 @@ function PhoneNumberInputForm({ handleSubmitPhoneNumber }: PhoneNumberInputFormP
     handleSubmitPhoneNumber(phoneNumber);
   }, [phoneNumber]);
 
-  // console.log(phoneNumber);
-
   return (
-    <div style={phoneNumberInputPageStyles}>
-      <Form style={phoneNumberFormStyles} form={form}>
+    <PhoneNumberInputPageStyled className="h-screen w-screen flex items-center justify-center">
+      <Form className="flex flex-col" form={form}>
         <Typography.Title level={3} type={'secondary'}>
           Please enter your phone number
         </Typography.Title>
 
         <Form.Item
           name="phone"
-          style={{ width: '100%' }}
           rules={[{ required: true, message: 'Please input your phone number!' }]}
           validateStatus={validationStatus}
           help={validationStatus ? 'Phone Number is invalid' : undefined}
@@ -117,42 +110,43 @@ function PhoneNumberInputForm({ handleSubmitPhoneNumber }: PhoneNumberInputFormP
           isOK={isOk}
           handleDelete={handleDeleteOneNumber}
         />
-
-        {/* <Form.Item style={{ width: '100%' }}>
-          <Button type="primary" size="large" htmlType="submit" style={{ width: '100%' }}>
-            Submit
-          </Button>
-        </Form.Item> */}
       </Form>
-    </div>
+    </PhoneNumberInputPageStyled>
   );
 }
 
 function CustomerChosingForm({ customers }: CustomerChosingFormProps) {
   const router = useRouter();
 
-  const customersInfo = customers.map((customer) => {
-    const handleClick = () => {
-      router.push(`/customers/${customer.id}/create-ticket`);
-    };
+  const customersInfo = useMemo(() => {
+    return customers.map((customer) => {
+      const handleClick = () => {
+        // router.push(`/customers/${customer.id}/create-ticket`);
+        router.push(`/pick-customer-successfully`);
+      };
 
-    return (
-      // <div style={customerChosingFormStyles}>
-      <CustomerChosingBox onClick={handleClick}>
-        <InnerChosingBox>
-          <Title level={5}>
-            {customer.first_name.toUpperCase()} {customer.last_name.toUpperCase()}
-          </Title>
-          <Text type={'secondary'}>{customer.email}</Text>
-        </InnerChosingBox>
-      </CustomerChosingBox>
-      // </div>
-    );
-  });
+      return (
+        <CustomerChosingBox onClick={handleClick}>
+          <InnerChosingBox>
+            <Title level={5}>
+              {customer.first_name.toUpperCase()} {customer.last_name.toUpperCase()}
+            </Title>
+            <Text type={'secondary'}>{customer.email}</Text>
+          </InnerChosingBox>
+        </CustomerChosingBox>
+      );
+    });
+  }, [customers]);
 
-  const CreateAnotherAccount = () => {
+  const createAnotherAccount = useMemo(() => {
     const handleClick = () => {
-      router.push(`/create-customer`);
+      const phoneNumber = router.query['phone_number'];
+
+      if (isNil(phoneNumber) || typeof phoneNumber !== 'string') {
+        return;
+      }
+
+      router.push(`/create-customer&phone_number=${phoneNumber}`);
     };
 
     return (
@@ -165,14 +159,14 @@ function CustomerChosingForm({ customers }: CustomerChosingFormProps) {
         </InnerChosingBox>
       </CustomerChosingBox>
     );
-  };
+  }, [router]);
 
   return (
     <div style={customerChosingPageStyles}>
       <StyledCustomerChosingForm>
         <Title level={3}>Choose an account</Title>
         {customersInfo}
-        <CreateAnotherAccount />
+        {createAnotherAccount}
       </StyledCustomerChosingForm>
     </div>
   );
@@ -183,8 +177,6 @@ export default withAuth(function Customers(props) {
   const { user, employee } = props;
   const [customers, setCustomers] = useState<Customer[]>();
   const [loading, setLoading] = useState(true);
-
-  // console.log(router.query['phone_number']);
 
   useEffect(() => {
     const phoneNumber = router.query['phone_number'];
@@ -219,9 +211,9 @@ export default withAuth(function Customers(props) {
   }, []);
 
   return loading ? (
-    <CenterContainner>
-      <Spin size="large" />
-    </CenterContainner>
+    <div className="h-screen w-screen">
+      <CustomSpinner />
+    </div>
   ) : !customers ? (
     <PhoneNumberInputForm handleSubmitPhoneNumber={handleSubmitPhoneNumber} />
   ) : (

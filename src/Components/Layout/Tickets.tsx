@@ -1,13 +1,11 @@
-import { Spin, Table } from 'antd';
-import { ColumnsType } from 'antd/lib/table';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { WithAuthProps } from '../../firebase/withAuth';
 import { Subscriber } from '../../services/subscribers';
 import { getTicketsBySubcriberID, Ticket } from '../../services/tickets';
 import { uniq } from 'lodash/fp';
 import { TicketTable } from '../TicketTable';
 import { Customer, getCustomersByIDs } from '../../services/customers';
-import { CustomSpinner } from '../../styles/commons';
+import { MainContainerLoadingStyled } from '../../styles/commons';
 
 export interface TicketProps extends WithAuthProps {
   subscriber: Subscriber | undefined;
@@ -34,7 +32,9 @@ export function Tickets(props: TicketProps) {
     getTicketsAndCustomers();
   }, [employee, user]);
 
-  // return <CustomSpinner />;
-
-  return !tickets || !customers ? <CustomSpinner /> : <TicketTable tickets={tickets} customers={customers} />;
+  return !tickets || !customers ? (
+    <MainContainerLoadingStyled />
+  ) : (
+    <TicketTable tickets={tickets} customers={customers} />
+  );
 }

@@ -178,8 +178,6 @@ function HasGoodFeedbackContainer(props: HasGoodFeedbackContainerProps) {
       return;
     }
 
-    // const editedRatingPLatform = [...ratingPlatforms, ...ratingPlatforms];
-
     const ratingPlatformComponents = ratingPlatforms.map((platform, index) => {
       return (
         <div className="flex flex-row mr-0.5">
@@ -206,7 +204,6 @@ function HasGoodFeedbackContainer(props: HasGoodFeedbackContainerProps) {
     return <div>Please go to {ratingPlatformLinks}to rate us!</div>;
   }, [ratingPlatformLinks]);
 
-  console.log(ratingPlatforms);
   if (!ratingPlatforms) {
     return (
       <div className="h-screen">
@@ -214,8 +211,6 @@ function HasGoodFeedbackContainer(props: HasGoodFeedbackContainerProps) {
       </div>
     );
   }
-
-  console.log('get here');
 
   return (
     <div className="h-screen">

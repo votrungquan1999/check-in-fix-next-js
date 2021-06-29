@@ -5,17 +5,19 @@ export const phoneNumberFormStyles: CSSProperties = {
   // width: 210,
   display: 'flex',
   flexDirection: 'column',
-  alignItems: 'center',
+  // alignItems: 'center',
 };
 
-export const phoneNumberInputPageStyles: CSSProperties = {
-  width: '100vw',
-  height: '100vh',
+export const PhoneNumberInputPageStyled = styled.div`
+  .ant-input-affix-wrapper {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
 
-  alignItems: 'center',
-  justifyContent: 'center',
-  display: 'flex',
-};
+  .ant-input {
+    font-size: inherit;
+  }
+`;
 
 export const customerChosingPageStyles: CSSProperties = {
   width: '100vw',

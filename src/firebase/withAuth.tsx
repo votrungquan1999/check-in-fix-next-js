@@ -1,12 +1,10 @@
-import React, { Component, useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import firebase from 'firebase';
-import { NextRouter, useRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import { Subtract } from 'utility-types';
-import { Spin } from 'antd';
-
 import 'antd/dist/antd.css';
 import { Employee, getEmployeeInfo } from '../services/employee';
-import { CenterContainner } from '../styles/commons';
+import { CustomSpinner } from '../styles/commons';
 
 export interface WithAuthProps {
   user: firebase.User;
@@ -29,6 +27,8 @@ export default function withAuth<P extends WithAuthProps>(Component: React.Compo
         const idToken = await user.getIdToken();
         const currentEmployee = await getEmployeeInfo(idToken);
 
+        console.log(idToken);
+
         setUser(user);
         setEmployee(currentEmployee);
       });
@@ -37,9 +37,9 @@ export default function withAuth<P extends WithAuthProps>(Component: React.Compo
     return user && employee ? (
       <Component {...(props as P)} user={user} employee={employee} />
     ) : (
-      <CenterContainner>
-        <Spin size="large" />
-      </CenterContainner>
+      <div className="h-screen">
+        <CustomSpinner />
+      </div>
     );
   };
 }

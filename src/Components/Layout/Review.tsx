@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { WithAuthProps } from '../../firebase/withAuth';
 import { getReviewList, Review } from '../../services/reviews';
-import { CustomSpinner } from '../../styles/commons';
+import { MainContainerLoadingStyled } from '../../styles/commons';
 import { ReviewTable } from '../ReviewTable';
 
 interface ReviewProps extends WithAuthProps {}
@@ -23,11 +23,5 @@ export function ReviewPage(props: ReviewProps) {
     getAndSetReviews();
   }, []);
 
-  return reviews ? (
-    <ReviewTable reviews={reviews} />
-  ) : (
-    <div style={{ height: 'calc(100vh - 64px)' }}>
-      <CustomSpinner />
-    </div>
-  );
+  return reviews ? <ReviewTable reviews={reviews} /> : <MainContainerLoadingStyled />;
 }

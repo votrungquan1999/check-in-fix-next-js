@@ -16,13 +16,7 @@ interface SendSMSModalProps {
 }
 
 export function SendSMSToCustomerModal(props: SendSMSModalProps) {
-  const {
-    sendMessageModalVisibility,
-    setSendMessageModalVisibility,
-    // customerIDs,
-    user,
-    customers,
-  } = props;
+  const { sendMessageModalVisibility, setSendMessageModalVisibility, user, customers } = props;
   const [SMSBody, setSMSBody] = useState<string>('');
   const [sending, setSending] = useState<boolean>(false);
 
@@ -38,7 +32,6 @@ export function SendSMSToCustomerModal(props: SendSMSModalProps) {
     const actions = {
       1: () => {
         setSMSBody('dear {first_name} {last_name}, please review at this url: {review_url}');
-        // setSendMessageModalVisibility(true);
       },
     };
 
@@ -65,7 +58,6 @@ export function SendSMSToCustomerModal(props: SendSMSModalProps) {
     setSending(true);
     const { token } = await user.getIdTokenResult();
 
-    // console.log(customerIDs);
     const customerIDs = customers.map((customer) => customer.id);
 
     const reviews = await createReviewsByCustomerIDs(customerIDs, token);

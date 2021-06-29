@@ -1,24 +1,28 @@
-import { DownOutlined } from '@ant-design/icons';
-import { Button, Dropdown, Input, Menu, Table } from 'antd';
+import { EllipsisOutlined } from '@ant-design/icons';
+import { Button, Dropdown, Menu, Table } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import { TableRowSelection } from 'antd/lib/table/interface';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { WithAuthProps } from '../firebase/withAuth';
-import { Customer, searchCustomers } from '../services/customers';
+import { Customer } from '../services/customers';
 import { transformPhoneNumberToDisplay } from '../utils/phoneNumber';
 import { transformDataForSelection } from '../utils/table';
 import { CustomerDetailModal } from './CustomerDetailModal';
+import { EditCustomerModal } from './EditCustomerModal';
 import { TableContainerStyled } from './Layout/styles';
-import { SendSMSToCustomerModal } from './SendSMSModal';
 
 interface CustomerTableProps extends WithAuthProps {
   customers: Customer[];
   setSelectedRows?: (rows: string[]) => any;
+  setToBeDeletedCustomers: React.Dispatch<React.SetStateAction<Customer[]>>;
+  height?: number;
+  width?: number;
 }
 
 export function CustomerTable(props: CustomerTableProps) {
-  const { customers, user, employee, setSelectedRows } = props;
+  const { customers, user, employee, setSelectedRows, height, width, setToBeDeletedCustomers } = props;
   const [detailCustomerID, setDetailCustomerID] = useState<string>();
+  const [editCustomer, setEditCustomer] = useState<Customer>();
 
   const rowSelection = useMemo<TableRowSelection<any>>(() => {
     if (!setSelectedRows) {
@@ -31,6 +35,7 @@ export function CustomerTable(props: CustomerTableProps) {
 
     return {
       onChange: onSelectedRowChanges,
+      fixed: true,
     };
   }, [setSelectedRows]);
 
@@ -42,6 +47,18 @@ export function CustomerTable(props: CustomerTableProps) {
     return;
   }, [customers]);
 
+  const columns = useMemo(() => {
+    return getColumns(setEditCustomer, setDetailCustomerID, setToBeDeletedCustomers);
+  }, [setEditCustomer, setDetailCustomerID, setToBeDeletedCustomers]);
+
+  const handleFinishUpdateCustomer = useCallback(() => {
+    setEditCustomer(undefined);
+  }, [setEditCustomer]);
+
+  const handleFinishDeleteCustomers = useCallback(() => {
+    setToBeDeletedCustomers([]);
+  }, [setToBeDeletedCustomers]);
+
   return (
     <div>
       <TableContainerStyled>
@@ -49,42 +66,108 @@ export function CustomerTable(props: CustomerTableProps) {
           rowSelection={rowSelection}
           columns={columns}
           dataSource={tableData}
-          onRow={(record: Customer, index) => {
-            return {
-              onClick: () => setDetailCustomerID(record.id),
-            };
-          }}
           pagination={{ pageSize: 50 }}
+          scroll={{ y: height, x: width }}
+          bordered
         />
       </TableContainerStyled>
 
       <CustomerDetailModal
         customerID={detailCustomerID}
-        subscriber_id={employee.subscriber_id}
+        subscriberID={employee.subscriber_id}
         user={user}
         setDetailCustomerID={setDetailCustomerID}
       />
+
+      <EditCustomerModal finishUpdateCustomer={handleFinishUpdateCustomer} customer={editCustomer} user={user} />
     </div>
   );
 }
 
-const columns: ColumnsType<any> = [
-  {
-    title: 'Name',
-    key: 'name',
-    render: (value: Customer) => {
-      return value.first_name + ' ' + value.last_name;
+function getColumns(
+  setEditCustomer: React.Dispatch<React.SetStateAction<Customer | undefined>>,
+  setDetailCustomerID: React.Dispatch<React.SetStateAction<string | undefined>>,
+  setToBeDeletedCustomers: React.Dispatch<React.SetStateAction<Customer[]>>,
+) {
+  const columns: ColumnsType<any> = [
+    {
+      title: 'Name',
+      key: 'name',
+      width: 300,
+      render: (value: Customer) => {
+        return value.first_name + ' ' + value.last_name;
+      },
+      onCell: (record: Customer) => {
+        return {
+          onClick: () => setDetailCustomerID(record.id),
+        };
+      },
     },
-  },
-  {
-    title: 'Email',
-    dataIndex: 'email',
-  },
-  {
-    title: 'Phone Number',
-    dataIndex: 'phone_number',
-    render: (value: string | undefined) => {
-      return transformPhoneNumberToDisplay(value);
+    {
+      title: 'Email',
+      dataIndex: 'email',
+      width: 300,
+      onCell: (record: Customer) => {
+        return {
+          onClick: () => setDetailCustomerID(record.id),
+        };
+      },
     },
-  },
-];
+    {
+      title: 'Phone Number',
+      dataIndex: 'phone_number',
+      width: 200,
+      render: (value: string | undefined) => {
+        return transformPhoneNumberToDisplay(value);
+      },
+      onCell: (record: Customer) => {
+        return {
+          onClick: () => setDetailCustomerID(record.id),
+        };
+      },
+    },
+    {
+      title: 'Actions',
+      width: 100,
+      render: (value: Customer) => {
+        return renderActions(value, setEditCustomer, setToBeDeletedCustomers);
+      },
+      fixed: 'right',
+    },
+  ];
+
+  return columns;
+}
+
+function renderActions(
+  value: Customer,
+  setEditCustomer: React.Dispatch<React.SetStateAction<Customer | undefined>>,
+  setToBeDeletedCustomers: React.Dispatch<React.SetStateAction<Customer[]>>,
+) {
+  const overlayMenu = (
+    <Menu>
+      <Menu.Item
+        onClick={() => {
+          setEditCustomer(value);
+        }}
+      >
+        Edit
+      </Menu.Item>
+      <Menu.Item
+        onClick={() => {
+          setToBeDeletedCustomers([value]);
+        }}
+      >
+        Delete
+      </Menu.Item>
+    </Menu>
+  );
+
+  return (
+    <div>
+      <Dropdown overlay={overlayMenu} trigger={['click']}>
+        <Button type="text" icon={<EllipsisOutlined />} />
+      </Dropdown>
+    </div>
+  );
+}

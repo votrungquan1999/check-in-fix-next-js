@@ -4,7 +4,6 @@ import { indexBy } from 'lodash/fp';
 import React, { useMemo } from 'react';
 import { Customer } from '../services/customers';
 import { Ticket } from '../services/tickets';
-import { TicketTableContainerStyled } from '../styles/Components/TicketTable';
 
 export interface TicketTableProps {
   tickets: Ticket[];
@@ -19,8 +18,9 @@ export function TicketTable(props: TicketTableProps) {
       title: 'Ticket ID',
       dataIndex: 'id',
       // responsive: ['md'],
-      // width: 150,
+      width: 150,
       // colSpan: 1,
+      ellipsis: true,
     },
     {
       title: 'Status',

@@ -1,18 +1,12 @@
 import styled from 'styled-components';
 
-export const CreateCustomerPage = styled.div`
-  width: 100vw;
-  height: 100vh;
-
-  align-items: center;
-  justify-content: center;
-  display: flex;
-  flex-direction: column;
+export const CreateCustomerPageStyled = styled.div`
+  width: 70vw;
 `;
 
-export const CreateCustomerForm = styled.div`
-  display: flex;
-  flex-direction: column;
+export const CreateCustomerFormStyled = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
 `;
 
 export const CreateCustomerInputContainer = styled.div`
