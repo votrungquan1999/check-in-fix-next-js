@@ -1,21 +1,17 @@
+import { Input } from 'antd';
 import { CSSProperties } from 'react';
 import styled from 'styled-components';
-
-export const phoneNumberFormStyles: CSSProperties = {
-  // width: 210,
-  display: 'flex',
-  flexDirection: 'column',
-  // alignItems: 'center',
-};
 
 export const PhoneNumberInputPageStyled = styled.div`
   .ant-input-affix-wrapper {
     font-size: 1.5rem;
     line-height: 2rem;
+    color: black;
   }
 
   .ant-input {
     font-size: inherit;
+    color: inherit;
   }
 `;
 
@@ -62,4 +58,10 @@ export const InnerChosingBox = styled.div`
   width: 100%;
   border-bottom: 1px solid #1c6ea4;
   padding: 10px 0px;
+`;
+
+export const CustomPhoneNumberInputStyled = styled(Input)`
+  && input {
+    text-align: center;
+  }
 `;

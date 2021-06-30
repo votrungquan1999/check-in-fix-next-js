@@ -1,5 +1,4 @@
-import { PhoneOutlined } from '@ant-design/icons';
-import { Form, Input, Spin, Typography } from 'antd';
+import { Form, Input, Typography } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import Text from 'antd/lib/typography/Text';
 import Title from 'antd/lib/typography/Title';
@@ -7,16 +6,14 @@ import { isNil } from 'lodash/fp';
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import NumberKeyboard from '../src/Components/NumberKeyboard';
-import withAuth, { WithAuthProps } from '../src/firebase/withAuth';
+import withAuth from '../src/firebase/withAuth';
 import { Customer, getCustomers } from '../src/services/customers';
-import { CenterContainner, CustomSpinner } from '../src/styles/commons';
+import { CustomSpinner } from '../src/styles/commons';
 import {
   CustomerChosingBox,
-  customerChosingPageStyles,
+  CustomPhoneNumberInputStyled,
   InnerChosingBox,
-  phoneNumberFormStyles,
   PhoneNumberInputPageStyled,
-  StyledCustomerChosingForm,
 } from '../src/styles/customers';
 import { transformPhoneNumberToDisplay } from '../src/utils/phoneNumber';
 
@@ -94,13 +91,12 @@ function PhoneNumberInputForm({ handleSubmitPhoneNumber }: PhoneNumberInputFormP
           validateStatus={validationStatus}
           help={validationStatus ? 'Phone Number is invalid' : undefined}
         >
-          <Input
+          <CustomPhoneNumberInputStyled
             type={'text'}
-            prefix={<PhoneOutlined />}
             placeholder="Phone Number"
-            size="large"
             disabled={true}
             allowClear
+            className="text-center"
           />
         </Form.Item>
 
@@ -162,12 +158,12 @@ function CustomerChosingForm({ customers }: CustomerChosingFormProps) {
   }, [router]);
 
   return (
-    <div style={customerChosingPageStyles}>
-      <StyledCustomerChosingForm>
+    <div className="w-screen h-screen flex items-center justify-center">
+      <div className="max-w-lg w-6/12 flex flex-col justify-center items-center border border-solid border-black py-7">
         <Title level={3}>Choose an account</Title>
         {customersInfo}
         {createAnotherAccount}
-      </StyledCustomerChosingForm>
+      </div>
     </div>
   );
 }

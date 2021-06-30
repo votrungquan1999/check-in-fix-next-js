@@ -15,7 +15,7 @@ export default function NumberKeyboard({ handleClickNumber, handleOK, isOK, hand
 
   const OKButton = (
     <OKButtonStyled onClick={handleOK} key={'ok'}>
-      <Button type="primary" size="large" disabled={!isOK} style={{ width: '100%', height: '100%' }}>
+      <Button type="primary" size="large" disabled={!isOK} style={{ height: '100%' }}>
         Submit
       </Button>
     </OKButtonStyled>
@@ -51,7 +51,7 @@ export default function NumberKeyboard({ handleClickNumber, handleOK, isOK, hand
 }
 
 const NumberKeyboardContainer = styled.div`
-  width: 349px;
+  /* width: 349px;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -59,47 +59,59 @@ const NumberKeyboardContainer = styled.div`
   column-gap: 5px;
   margin-bottom: 20px;
 
-  justify-content: center;
+  justify-content: center; */
+
+  width: 349px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  row-gap: 20px;
+
+  justify-items: center;
+  align-items: center;
 `;
 
 const NumberButtonStyled = styled.div`
-  width: 113px;
+  width: 70px;
   height: 70px;
   display: flex;
 
   align-items: center;
   justify-content: center;
   border: 1px solid #1c6ea4;
+  border-radius: 50%;
 
   cursor: pointer !important;
 `;
 
 const OKButtonStyled = styled.div`
-  width: 113px;
+  /* width: 70px; */
   height: 70px;
   display: flex;
 
   align-items: center;
   justify-content: center;
+  border-radius: 50%;
   /* border: 1px solid #1c6ea4; */
 
   cursor: pointer !important;
 `;
 
 const DeleteButtonStyled = styled.div`
-  width: 113px;
+  width: 70px;
   height: 70px;
   display: flex;
 
   align-items: center;
   justify-content: center;
   border: 1px solid #1c6ea4;
-  font-size: 60px;
+  border-radius: 50%;
+  font-size: 40px;
 
   cursor: pointer !important;
 `;
 
 const NumberStyled = styled.p`
-  font-size: 24px;
+  font-size: 1.5rem;
   margin: 0;
 `;

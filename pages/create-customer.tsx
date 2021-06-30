@@ -33,7 +33,7 @@ export default withAuth(function CreateCustomer(props) {
     return transformPhoneNumberToDisplay(rawPhoneNumber);
   }, []);
 
-  const onFinish = useCallback(
+  const handleSubmit = useCallback(
     async (value: any) => {
       if (Object.values(draftValidationErrors).every((value) => value !== undefined)) {
         setCustomValidationErrors(draftValidationErrors);
@@ -87,10 +87,10 @@ export default withAuth(function CreateCustomer(props) {
     <div className="h-screen w-screen flex flex-col items-center justify-center">
       <Typography.Title level={2}>Create New Customer</Typography.Title>
       <Form
-        onFinish={onFinish}
         style={{
           width: '70%',
         }}
+        onFinish={handleSubmit}
         onValuesChange={(changedValues: any) => {
           handleOneFieldChange(
             Object.keys(changedValues)[0] as keyof CreateCustomerInput,
@@ -142,7 +142,7 @@ export default withAuth(function CreateCustomer(props) {
             <Input prefix={<EnvironmentOutlined className="site-form-item-icon" />} placeholder="Zipcode" />
           </Form.Item>
           <Form.Item>
-            <Button className="w-full" type="primary" htmlType="submit">
+            <Button className="w-full" type="primary" onClick={handleSubmit}>
               Submit
             </Button>
           </Form.Item>
