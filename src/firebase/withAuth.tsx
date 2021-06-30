@@ -27,7 +27,7 @@ export default function withAuth<P extends WithAuthProps>(Component: React.Compo
         const idToken = await user.getIdToken();
         const currentEmployee = await getEmployeeInfo(idToken);
 
-        console.log(idToken);
+        // console.log(idToken);
 
         setUser(user);
         setEmployee(currentEmployee);

@@ -49,3 +49,7 @@ export function DeleteCustomerModal(props: DeleteCustomerModalProps) {
     </Modal>
   );
 }
+
+export function DoubleConfirmDeleteCustomerContent() {
+  return <div></div>;
+}
