@@ -15,7 +15,7 @@ export default function NumberKeyboard({ handleClickNumber, handleOK, isOK, hand
 
   const OKButton = (
     <OKButtonStyled onClick={handleOK} key={'ok'}>
-      <Button type="primary" size="large" disabled={!isOK} style={{ height: '100%' }}>
+      <Button type="primary" size="large" shape="round" disabled={!isOK} style={{ height: '100%' }}>
         Submit
       </Button>
     </OKButtonStyled>
@@ -34,7 +34,13 @@ export default function NumberKeyboard({ handleClickNumber, handleOK, isOK, hand
       </NumberButtonStyled>
     );
 
-    NumberButtons.push(NumberButton);
+    // NumberButtons.push(NumberButton);
+
+    NumberButtons.push(
+      <Button type="primary" size="large" shape="round" onClick={() => handleClickNumber(i)} style={{ height: '100%' }}>
+        {i}
+      </Button>,
+    );
   }
 
   NumberButtons.push(DeleteButton);
