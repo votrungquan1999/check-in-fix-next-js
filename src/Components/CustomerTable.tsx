@@ -128,7 +128,7 @@ function getColumns(
     },
     {
       title: 'Actions',
-      width: 100,
+      width: 90,
       render: (value: Customer) => {
         return renderActions(value, setEditCustomer, setToBeDeletedCustomers);
       },

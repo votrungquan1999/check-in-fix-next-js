@@ -1,12 +1,19 @@
-import { ConsoleSqlOutlined } from '@ant-design/icons';
+import Icon, { ConsoleSqlOutlined, FacebookFilled, FacebookOutlined, GoogleCircleFilled } from '@ant-design/icons';
 import { Button, Form, Input, Rate, Result, Typography } from 'antd';
+import { find, flow, get, isEqual } from 'lodash/fp';
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { GoogleIcon } from '../../src/Components/Icons/GoogleIcon';
 import { WithAuthProps } from '../../src/firebase/withAuth';
 import { getRatingPlatformByReviewID, RatingPlatforms } from '../../src/services/ratingPlatforms';
 import { feedbackReview, getReviewByID, rateReview, Review } from '../../src/services/reviews';
 import { CustomResult, CustomSpinner, FullHeightContainter } from '../../src/styles/commons';
-import { FeedbackContainerStyled, RatingContainerStyled } from '../../src/styles/reviews/[id]';
+import {
+  FeedbackContainerStyled,
+  RatingContainerStyled,
+  ReviewOnPlatformButtonStyled,
+} from '../../src/styles/reviews/[id]';
+// import googleIconSVG from '../../src/assets/images/icons/Google_Logo.svg';
 
 const { Title } = Typography;
 
@@ -48,23 +55,21 @@ export default function CustomerReview() {
     };
 
     return (
-      <FullHeightContainter>
-        <RatingContainerStyled>
-          <div style={{ fontSize: '20px' }}>
-            <Title level={3}>Please rate our service</Title>
-            <Form onFinish={handleChange}>
-              <Form.Item name="rating">
-                <Rate allowHalf tooltips={desc} />
-              </Form.Item>
-              <Form.Item>
-                <Button type="primary" htmlType="submit">
-                  Submit
-                </Button>
-              </Form.Item>
-            </Form>
-          </div>
+      <div className="h-screen">
+        <RatingContainerStyled className="h-full flex flex-col items-center content-center">
+          <Title level={3}>Please rate our service</Title>
+          <Form onFinish={handleChange}>
+            <Form.Item name="rating">
+              <Rate allowHalf tooltips={desc} />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                Submit
+              </Button>
+            </Form.Item>
+          </Form>
         </RatingContainerStyled>
-      </FullHeightContainter>
+      </div>
     );
   }, [review]);
 
@@ -128,9 +133,9 @@ export default function CustomerReview() {
 
   if (!review) {
     return (
-      <FullHeightContainter>
+      <div className="h-screen">
         <CustomSpinner />;
-      </FullHeightContainter>
+      </div>
     );
   }
 
@@ -152,9 +157,11 @@ export default function CustomerReview() {
 interface HasGoodFeedbackContainerProps {
   reviewID: string;
 }
+
 function HasGoodFeedbackContainer(props: HasGoodFeedbackContainerProps) {
   const { reviewID } = props;
   const [ratingPlatforms, setRatingPlatforms] = useState<RatingPlatforms[]>();
+  const router = useRouter();
 
   useEffect(() => {
     async function getRatingPlatforms() {
@@ -171,38 +178,68 @@ function HasGoodFeedbackContainer(props: HasGoodFeedbackContainerProps) {
     }
 
     getRatingPlatforms();
-  }, [reviewID]);
+  }, [reviewID, setRatingPlatforms, getRatingPlatformByReviewID]);
 
   const ratingPlatformLinks = useMemo(() => {
-    if (!ratingPlatforms) {
+    if (!ratingPlatforms || !ratingPlatforms.length) {
       return;
     }
 
-    const ratingPlatformComponents = ratingPlatforms.map((platform, index) => {
-      return (
-        <div className="flex flex-row mr-0.5">
-          <div className="mr-0.5">
-            <a href={platform.url} target="_blank">{`${platform.name}`}</a>
-          </div>
-          <div>{index === ratingPlatforms.length - 1 ? <p /> : <p> or </p>}</div>
-        </div>
-      );
-    });
+    const facebookPlatform = find<RatingPlatforms>(flow(get('name'), isEqual('facebook')))(ratingPlatforms);
+
+    const reviewOnFacebookButton = facebookPlatform ? (
+      <ReviewOnPlatformButtonStyled
+        href={facebookPlatform.url}
+        target="_blank"
+        // type="primary"
+        icon={<FacebookFilled color="#1890ff" />}
+      >
+        Review us on Facebook
+      </ReviewOnPlatformButtonStyled>
+    ) : undefined;
+
+    const googlePlatform = find<RatingPlatforms>(flow(get('name'), isEqual('google')))(ratingPlatforms);
+
+    const reviewOnGoogleButton = googlePlatform ? (
+      <ReviewOnPlatformButtonStyled
+        href={googlePlatform.url}
+        target="_blank"
+        // type="primary"
+        icon={<Icon component={GoogleIcon} />}
+      >
+        Review us on Google
+      </ReviewOnPlatformButtonStyled>
+    ) : undefined;
 
     return (
-      <div className="inline-block">
-        <div className="flex flex-row">{ratingPlatformComponents}</div>
+      <div className="flex flex-col gap-y-7">
+        {reviewOnFacebookButton}
+        {reviewOnGoogleButton}
       </div>
     );
   }, [ratingPlatforms]);
 
-  const subTitle = useMemo(() => {
-    if (!ratingPlatformLinks) {
-      return;
-    }
+  const successMessage = useMemo(() => {
+    return (
+      <div className="border p-2 w-96">
+        <div>
+          <p className="m-0 font-black text-2xl">"</p>
+          <p className="m-0">
+            We want to be better, and your feedback helps us accomplish that. Please help us know how you feel about
+            your visit.
+          </p>
+        </div>
+        <div className="flex flex-col items-end">
+          <p className="m-0"> Thanks for your trust!</p>
+          <p className="m-0 font-black text-2xl">“</p>
+        </div>
+      </div>
+    );
+  }, []);
 
-    return <div>Please go to {ratingPlatformLinks}to rate us!</div>;
-  }, [ratingPlatformLinks]);
+  const reviewRequest = useMemo(() => {
+    return <div className="flex justify-center">PLEASE GIVE US A REVIEW</div>;
+  }, []);
 
   if (!ratingPlatforms) {
     return (
@@ -213,8 +250,15 @@ function HasGoodFeedbackContainer(props: HasGoodFeedbackContainerProps) {
   }
 
   return (
-    <div className="h-screen">
-      <CustomResult status="success" title="Rated Successfully" subTitle={subTitle} />;
+    <div className="h-screen flex flex-col items-center justify-center">
+      {/* <div>
+        <CustomResult status="success" title="Review Successfully" />
+      </div> */}
+      <div className="w-min flex flex-col items-center gap-y-4">
+        {successMessage}
+        {reviewRequest}
+        {ratingPlatformLinks}
+      </div>
     </div>
   );
 }

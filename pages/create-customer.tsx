@@ -92,7 +92,6 @@ export default withAuth(function CreateCustomer(props) {
   }, []);
 
   const handleClickSubmit = useCallback(async () => {
-    setSubmitting(true);
     const value = form.getFieldsValue();
 
     const validationResult = validateFieldsValue();
@@ -116,16 +115,13 @@ export default withAuth(function CreateCustomer(props) {
       zip_code: value.zip_code,
     };
 
-    console.log('here', value);
-
     const token = await user.getIdToken();
     const customer = await createCustomer(createCustomerInput, token);
     if (!customer) {
       return;
     }
 
-    // router.push(`/customers/${customer.id}/create-ticket`);
-    router.push('/create-customer-successfully');
+    return router.push('/create-customer-successfully');
   }, [user, form, setCustomValidationErrors]);
 
   return (

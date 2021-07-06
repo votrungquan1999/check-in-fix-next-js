@@ -1,4 +1,4 @@
-import { DatabaseOutlined, FormOutlined, PieChartOutlined, UserOutlined } from '@ant-design/icons';
+import { DatabaseOutlined, FormOutlined, PieChartOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Layout, Menu } from 'antd';
 import { Content, Header } from 'antd/lib/layout/layout';
 import Sider from 'antd/lib/layout/Sider';
@@ -20,15 +20,17 @@ import firebase from 'firebase';
 import { Customers } from './Customers';
 import { CustomSpinner } from '../../styles/commons';
 import { ReviewPage } from './Review';
+import { Settings } from './Settings';
 
 const pageNames = {
   1: 'Dashboard',
   2: 'Tickets',
   3: 'Customers',
   4: 'Review',
+  5: 'Settings',
 };
 
-type contentKeys = '1' | '2' | '3' | '4';
+type contentKeys = '1' | '2' | '3' | '4' | '5';
 
 export default withAuth(function MainContainer({ employee, user }) {
   const [subscriber, setSubscriber] = useState<Subscriber>();
@@ -41,6 +43,7 @@ export default withAuth(function MainContainer({ employee, user }) {
       2: <Tickets employee={employee} user={user} subscriber={subscriber} />,
       3: <Customers employee={employee} user={user} />,
       4: <ReviewPage employee={employee} user={user} />,
+      5: <Settings employee={employee} user={user} />,
     };
   }, [employee, subscriber, user]);
 
@@ -96,6 +99,9 @@ export default withAuth(function MainContainer({ employee, user }) {
               </Menu.Item>
               <Menu.Item key="4" icon={<FormOutlined />}>
                 Review
+              </Menu.Item>
+              <Menu.Item key="5" icon={<SettingOutlined />}>
+                Settings
               </Menu.Item>
             </Menu>
           </MainContainerSiderMenuStyled>
