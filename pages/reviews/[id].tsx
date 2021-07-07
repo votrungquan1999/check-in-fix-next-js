@@ -213,6 +213,7 @@ function HasGoodFeedbackContainer(props: HasGoodFeedbackContainerProps) {
 
     return (
       <div className="flex flex-col gap-y-7">
+        {reviewOnGoogleButton}
         {reviewOnFacebookButton}
         {reviewOnGoogleButton}
       </div>
