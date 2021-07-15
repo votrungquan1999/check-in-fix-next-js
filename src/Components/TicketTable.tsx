@@ -1,75 +1,135 @@
-import { Table } from 'antd';
+import { EllipsisOutlined } from '@ant-design/icons';
+import { Button, Dropdown, Menu, Table, Tooltip } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
-import { indexBy } from 'lodash/fp';
+import { find, indexBy, isNil } from 'lodash/fp';
 import React, { useMemo } from 'react';
 import { Customer } from '../services/customers';
-import { Ticket } from '../services/tickets';
+import { Service, serviceMapping, Ticket, TicketStatuses } from '../services/tickets';
+import { transformPhoneNumberToDisplay } from '../utils/phoneNumber';
 
 export interface TicketTableProps {
   tickets: Ticket[];
   customers: Customer[];
+  ticketStatuses: TicketStatuses[];
 }
 
 export function TicketTable(props: TicketTableProps) {
-  const { tickets, customers } = props;
+  const { tickets, customers, ticketStatuses } = props;
 
+  const columns = useMemo(() => {
+    return getColumns(ticketStatuses, customers);
+  }, [ticketStatuses, customers]);
+
+  return <Table columns={columns} dataSource={tickets} scroll={{ y: 100000000, x: 'max-content' }} bordered />;
+}
+
+function getColumns(ticketStatuses: TicketStatuses[], customers: Customer[]) {
   const columns: ColumnsType<any> = [
     {
       title: 'Ticket ID',
       dataIndex: 'id',
-      // responsive: ['md'],
-      width: 150,
-      // colSpan: 1,
+      // width: 250,
       ellipsis: true,
+      fixed: 'left',
+      // align: 'center',
     },
     {
       title: 'Status',
       dataIndex: 'status',
-      // colSpan: 1,
+      width: 150,
+      render: (status: number) => {
+        return getCurrentStatusName(ticketStatuses, status);
+      },
     },
     {
-      title: 'Customer Name',
-      dataIndex: ['customer', 'name'],
-      // colSpan: 1,
+      title: 'Name',
+      dataIndex: 'customer_id',
+      width: 150,
+      render: (customerId: string) => {
+        return getCustomerName(customerId, customers);
+      },
     },
     {
       title: 'Phone Number',
-      dataIndex: ['customer', 'phone_number'],
-      // colSpan: 1,
+      dataIndex: ['contact_phone_number'],
+      width: 150,
+      render: (phoneNumber: string) => {
+        return transformPhoneNumberToDisplay(phoneNumber);
+      },
     },
     {
       title: 'Service',
-      dataIndex: 'service',
-      // colSpan: 1,
+      dataIndex: 'service_id',
+      width: 150,
+      render: (service: Service) => {
+        return serviceMapping[service];
+      },
     },
     {
       title: 'Device Model',
       dataIndex: 'device_model',
-      // colSpan: 1,
+      width: 150,
+    },
+    {
+      title: 'Opened At',
+      dataIndex: 'created_at',
+      render: (createdAt: string) => {
+        const [date, time] = createdAt.replaceAll('Z', '').split('T');
+        const formatedTime = time.slice(0, 8);
+
+        return date + ' ' + formatedTime;
+      },
+    },
+    {
+      width: 150,
+      title: 'Grand Total',
+      dataIndex: ['quote'],
+    },
+    {
+      title: 'Paid',
+      dataIndex: ['paid'],
+      width: 150,
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      width: 90,
+      align: 'center',
+      fixed: 'right',
+      render: () => {
+        const menu = (
+          <Menu>
+            <Menu.Item>item 1</Menu.Item>
+          </Menu>
+        );
+
+        return (
+          <Dropdown overlay={menu} trigger={['click']}>
+            <Button type="text" icon={<EllipsisOutlined />} />
+          </Dropdown>
+        );
+      },
     },
   ];
 
-  const displayData = useMemo(() => transformDataToDisplay(customers, tickets), [customers, tickets]);
-
-  return <Table columns={columns} dataSource={displayData} scroll={{ y: 100000000 }} />;
+  return columns;
 }
 
-function transformDataToDisplay(customers: Customer[], tickets: Ticket[]) {
-  const mapIDCustomer = indexBy('id', customers);
+function getCurrentStatusName(ticketStatuses: TicketStatuses[], status: number) {
+  const currentStatus = find<TicketStatuses>((ticketStatus) => ticketStatus.order === status)(ticketStatuses);
+  if (isNil(currentStatus)) {
+    return 'N/A';
+  }
 
-  const data = tickets.map((ticket) => {
-    const currentCustomer = mapIDCustomer[ticket.customer_id];
+  return currentStatus.name;
+}
 
-    return {
-      ...ticket,
-      customer: currentCustomer
-        ? {
-            ...currentCustomer,
-            name: currentCustomer.first_name + ' ' + currentCustomer.last_name,
-          }
-        : undefined,
-    };
-  });
+function getCustomerName(customerId: string, customers: Customer[]) {
+  const currentCustomer = find<Customer>((customer) => customer.id === customerId)(customers);
 
-  return data;
+  if (isNil(currentCustomer)) {
+    return 'N/A';
+  }
+
+  return currentCustomer.first_name + ' ' + currentCustomer.last_name;
 }

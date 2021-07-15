@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { GoogleIcon } from '../../src/Components/Icons/GoogleIcon';
 import { WithAuthProps } from '../../src/firebase/withAuth';
-import { getRatingPlatformByReviewID, RatingPlatforms } from '../../src/services/ratingPlatforms';
+import { getRatingPlatformByReviewID, RatingPlatforms } from '../../src/services/settings/ratingPlatforms';
 import { feedbackReview, getReviewByID, rateReview, Review } from '../../src/services/reviews';
 import { CustomResult, CustomSpinner, FullHeightContainter } from '../../src/styles/commons';
 import {
@@ -215,7 +215,6 @@ function HasGoodFeedbackContainer(props: HasGoodFeedbackContainerProps) {
       <div className="flex flex-col gap-y-7">
         {reviewOnGoogleButton}
         {reviewOnFacebookButton}
-        {reviewOnGoogleButton}
       </div>
     );
   }, [ratingPlatforms]);

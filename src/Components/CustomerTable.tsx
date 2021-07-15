@@ -1,5 +1,5 @@
 import { EllipsisOutlined } from '@ant-design/icons';
-import { Button, Dropdown, Menu, Table } from 'antd';
+import { Button, Dropdown, Menu, Table, Tooltip } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import { TableRowSelection } from 'antd/lib/table/interface';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -91,9 +91,27 @@ function getColumns(
 ) {
   const columns: ColumnsType<any> = [
     {
+      title: 'ID',
+      dataIndex: 'id',
+      width: 300,
+      ellipsis: true,
+      onCell: (record: Customer) => {
+        return {
+          onClick: () => setDetailCustomerID(record.id),
+        };
+      },
+      render: (value: string) => {
+        return (
+          <Tooltip placement="topLeft" title={value}>
+            {value}
+          </Tooltip>
+        );
+      },
+    },
+    {
       title: 'Name',
       key: 'name',
-      width: 300,
+      width: 200,
       render: (value: Customer) => {
         return value.first_name + ' ' + value.last_name;
       },
@@ -102,6 +120,7 @@ function getColumns(
           onClick: () => setDetailCustomerID(record.id),
         };
       },
+      ellipsis: true,
     },
     {
       title: 'Email',

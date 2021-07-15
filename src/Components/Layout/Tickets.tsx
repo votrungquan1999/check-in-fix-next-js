@@ -1,11 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { WithAuthProps } from '../../firebase/withAuth';
 import { Subscriber } from '../../services/subscribers';
-import { getTicketsBySubcriberID, Ticket } from '../../services/tickets';
-import { uniq } from 'lodash/fp';
+import {
+  getTicketsBySubcriberID,
+  getTicketStatusesBySubscriberID,
+  Ticket,
+  TicketStatuses,
+  TicketStatusesType,
+} from '../../services/tickets';
+import { filter, find, flow, isNil, uniq } from 'lodash/fp';
 import { TicketTable } from '../TicketTable';
 import { Customer, getCustomersByIDs } from '../../services/customers';
 import { MainContainerLoadingStyled } from '../../styles/commons';
+import { Button, Tabs } from 'antd';
+import { FileAddOutlined } from '@ant-design/icons';
 
 export interface TicketProps extends WithAuthProps {
   subscriber: Subscriber | undefined;
@@ -13,28 +21,73 @@ export interface TicketProps extends WithAuthProps {
 
 export function Tickets(props: TicketProps) {
   const { user, employee } = props;
-  const [tickets, setTickets] = useState<Ticket[]>();
   const [customers, setCustomers] = useState<Customer[]>();
+  const [ticketStatuses, setTicketStatuses] = useState<TicketStatuses[]>();
+  const [pendingTickets, setPendingTickets] = useState<Ticket[]>();
+  const [completedTickets, setCompletedTickets] = useState<Ticket[]>();
 
   useEffect(() => {
     const getTicketsAndCustomers = async () => {
       const { token } = await user.getIdTokenResult();
       const tickets = await getTicketsBySubcriberID(employee.subscriber_id, token);
-      setTickets(tickets);
 
       const customerIDs = uniq(tickets.map((ticket) => ticket.customer_id));
 
       const customers = await getCustomersByIDs(token, customerIDs);
 
+      if (customers.length !== customerIDs.length) {
+        alert('get customer failed!');
+        return;
+      }
+
       setCustomers(customers);
+
+      const subscriberTicketStatuses = await getTicketStatusesBySubscriberID(employee.subscriber_id, token);
+      setTicketStatuses(subscriberTicketStatuses);
+
+      if (isNil(subscriberTicketStatuses)) {
+        return;
+      }
+
+      setPendingTickets(getTicketWithType(subscriberTicketStatuses, tickets, TicketStatusesType.Pending));
+      setCompletedTickets(getTicketWithType(subscriberTicketStatuses, tickets, TicketStatusesType.Completed));
     };
 
     getTicketsAndCustomers();
   }, [employee, user]);
 
-  return !tickets || !customers ? (
+  const addTicketButton = useMemo(() => {
+    return (
+      <Button type="primary" className="flex items-center">
+        <FileAddOutlined />
+        Add New Ticket
+      </Button>
+    );
+  }, []);
+
+  return !pendingTickets || !customers || !ticketStatuses || !completedTickets ? (
     <MainContainerLoadingStyled />
   ) : (
-    <TicketTable tickets={tickets} customers={customers} />
+    <Tabs defaultActiveKey="1" type="card" tabBarExtraContent={addTicketButton}>
+      <Tabs.TabPane tab="Pending Tickets" key="1" className="-mt-4">
+        <TicketTable tickets={pendingTickets} customers={customers} ticketStatuses={ticketStatuses} />
+      </Tabs.TabPane>
+
+      <Tabs.TabPane tab="Completed Tickets" key="2" className="-mt-4">
+        <TicketTable tickets={completedTickets} customers={customers} ticketStatuses={ticketStatuses} />
+      </Tabs.TabPane>
+    </Tabs>
   );
+}
+
+function getTicketWithType(ticketStatuses: TicketStatuses[], tickets: Ticket[], type: TicketStatusesType) {
+  return tickets.filter((ticket) => {
+    const currentStatus = find<TicketStatuses>((ticketStatus) => ticketStatus.order === ticket.status)(ticketStatuses);
+
+    if (isNil(currentStatus)) {
+      return false;
+    }
+
+    return currentStatus.type === type;
+  });
 }

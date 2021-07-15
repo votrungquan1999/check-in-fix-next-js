@@ -85,10 +85,12 @@ export async function getCustomersByIDs(token: string, customerIDs: string[]) {
 
   let reqURL = `${baseBEURL}/private/customers`;
 
-  const initialID = customerIDs.pop();
+  const customerIdList = [...customerIDs];
+
+  const initialID = customerIdList.pop();
   reqURL += `?customer_id=${initialID}`;
 
-  customerIDs.forEach((id) => {
+  customerIdList.forEach((id) => {
     reqURL += `&customer_id=${id}`;
   });
 
@@ -129,14 +131,8 @@ export interface CreateCustomerInput {
   zip_code: string;
 }
 
-export async function createCustomer(
-  input: CreateCustomerInput,
-  // subscriberID: string,
-  token: string,
-) {
+export async function createCustomer(input: CreateCustomerInput, token: string) {
   const baseBEURL = process.env.NEXT_PUBLIC_BACKEND_URL;
-
-  // input.subscriber_id = subscriberID;
 
   try {
     const resp = await axios.post<CommonResponse<Customer>>(`${baseBEURL}/private/customers`, input, {
