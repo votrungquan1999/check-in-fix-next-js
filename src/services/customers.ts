@@ -124,11 +124,11 @@ export interface CreateCustomerInput {
   last_name: string;
   email?: string;
   subscriber_id: string;
-  address_line_1: string;
-  city: string;
-  state: string;
-  country: string;
-  zip_code: string;
+  address_line_1?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  zip_code?: string;
 }
 
 export async function createCustomer(input: CreateCustomerInput, token: string) {
