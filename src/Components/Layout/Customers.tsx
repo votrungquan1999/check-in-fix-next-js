@@ -134,7 +134,7 @@ export function Customers(props: WithAuthProps) {
   return !customers ? (
     <MainContainerLoadingStyled />
   ) : (
-    <MainContainerFullHeightStyled>
+    <div className="p-5 pb-0">
       <div className="bg-white rounded-md">
         <div className="flex p-2 items-center">
           {tableName}
@@ -152,8 +152,7 @@ export function Customers(props: WithAuthProps) {
             employee={employee}
             user={user}
             setSelectedRows={handleRowsSelected}
-            height={window.innerHeight - 270}
-            width={window.innerWidth - 500}
+            height={window.innerHeight - 271}
             setToBeDeletedCustomers={setToBeDeletedCustomers}
           />
         )}
@@ -172,6 +171,6 @@ export function Customers(props: WithAuthProps) {
           user={user}
         />
       </div>
-    </MainContainerFullHeightStyled>
+    </div>
   );
 }

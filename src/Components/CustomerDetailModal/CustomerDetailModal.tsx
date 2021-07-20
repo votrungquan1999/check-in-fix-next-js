@@ -1,28 +1,34 @@
 import { Button, Dropdown, Menu, Modal } from 'antd';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import firebase from 'firebase';
-import { Customer, getCustomerDetailByID } from '../services/customers';
-import { getTicketsByCustomerID, Ticket } from '../services/tickets';
-import { CustomSpinner } from '../styles/commons';
-import { TicketTable } from './TicketTable';
-import { ModalContentContainerStyled } from '../styles/Components/CustomerDetailModal';
-import { DetailTable } from './DetailTable';
-import { EditCustomerModal } from './EditCustomerModal';
+import { Customer, getCustomerDetailByID } from '../../services/customers';
+import {
+  getTicketsByCustomerID,
+  getTicketStatusesBySubscriberID,
+  Ticket,
+  TicketStatuses,
+} from '../../services/tickets';
+import { CustomSpinner } from '../../styles/commons';
+import { TicketTable } from '../TicketTable';
+import { DetailTable } from '../DetailTable';
+import { EditCustomerModal } from '../EditCustomerModal';
 import { DownOutlined } from '@ant-design/icons';
-import { transformPhoneNumberToDisplay } from '../utils/phoneNumber';
+import { transformPhoneNumberToDisplay } from '../../utils/phoneNumber';
+import { WithAuthProps } from '../../firebase/withAuth';
+import { isNil } from 'lodash/fp';
 
-interface CustomerDetailModalProps {
+interface CustomerDetailModalProps extends WithAuthProps {
   customerID?: string;
   subscriberID: string;
-  user: firebase.User;
   setDetailCustomerID: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
 
 export function CustomerDetailModal(props: CustomerDetailModalProps) {
-  const { customerID, user, setDetailCustomerID } = props;
+  const { customerID, user, setDetailCustomerID, employee } = props;
   const [customer, setCustomer] = useState<Customer>();
   const [tickets, setTickets] = useState<Ticket[]>();
   const [editCustomer, setEditCustomer] = useState<Customer>();
+  const [ticketStatuses, setTicketStatuses] = useState<TicketStatuses[]>();
 
   useEffect(() => {
     async function getCustomerAndTickets() {
@@ -43,10 +49,14 @@ export function CustomerDetailModal(props: CustomerDetailModalProps) {
       const tickets = await getTicketsByCustomerID(customerID, token);
 
       setTickets(tickets);
+
+      const subscriberTicketStatuses = await getTicketStatusesBySubscriberID(employee.subscriber_id, token);
+      setTicketStatuses(subscriberTicketStatuses);
+      console.log(subscriberTicketStatuses);
     }
 
     getCustomerAndTickets();
-  }, [customerID, user, setTickets, setCustomer]);
+  }, [customerID, user, setTickets, setCustomer, employee]);
 
   const handleFinishUpdateCustomer = useCallback(async () => {
     setEditCustomer(undefined);
@@ -103,11 +113,11 @@ export function CustomerDetailModal(props: CustomerDetailModalProps) {
   }, [customer]);
 
   const modalContent = useMemo(() => {
-    if (!customer || !tickets) {
+    if (!customer || !tickets || !ticketStatuses) {
       return (
-        <ModalContentContainerStyled>
+        <div className="w-6">
           <CustomSpinner />
-        </ModalContentContainerStyled>
+        </div>
       );
     }
 
@@ -126,10 +136,10 @@ export function CustomerDetailModal(props: CustomerDetailModalProps) {
             fields={['id', 'first_name', 'phone_number', 'last_name', 'email', 'contact_phone_number']}
           />
         </div>
-        <TicketTable tickets={tickets} customers={[customer]} />
+        <TicketTable tickets={tickets} customers={[customer]} ticketStatuses={ticketStatuses} />
       </div>
     );
-  }, [customer, tickets]);
+  }, [customer, tickets, ticketStatuses]);
 
   return (
     <Modal title="Customer Detail" visible={!!customerID} onOk={resetModal} onCancel={resetModal} width={'80%'}>

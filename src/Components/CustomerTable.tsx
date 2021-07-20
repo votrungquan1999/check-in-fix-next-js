@@ -7,7 +7,7 @@ import { WithAuthProps } from '../firebase/withAuth';
 import { Customer } from '../services/customers';
 import { transformPhoneNumberToDisplay } from '../utils/phoneNumber';
 import { transformDataForSelection } from '../utils/table';
-import { CustomerDetailModal } from './CustomerDetailModal';
+import { CustomerDetailModal } from './CustomerDetailModal/CustomerDetailModal';
 import { EditCustomerModal } from './EditCustomerModal';
 import { TableContainerStyled } from './Layout/styles';
 
@@ -16,11 +16,10 @@ interface CustomerTableProps extends WithAuthProps {
   setSelectedRows?: (rows: string[]) => any;
   setToBeDeletedCustomers: React.Dispatch<React.SetStateAction<Customer[]>>;
   height?: number;
-  width?: number;
 }
 
 export function CustomerTable(props: CustomerTableProps) {
-  const { customers, user, employee, setSelectedRows, height, width, setToBeDeletedCustomers } = props;
+  const { customers, user, employee, setSelectedRows, height, setToBeDeletedCustomers } = props;
   const [detailCustomerID, setDetailCustomerID] = useState<string>();
   const [editCustomer, setEditCustomer] = useState<Customer>();
 
@@ -67,7 +66,10 @@ export function CustomerTable(props: CustomerTableProps) {
           columns={columns}
           dataSource={tableData}
           pagination={{ pageSize: 50 }}
-          scroll={{ y: height, x: width }}
+          scroll={{
+            y: height,
+            x: 'max-content',
+          }}
           bordered
         />
       </TableContainerStyled>
@@ -77,6 +79,7 @@ export function CustomerTable(props: CustomerTableProps) {
         subscriberID={employee.subscriber_id}
         user={user}
         setDetailCustomerID={setDetailCustomerID}
+        employee={employee}
       />
 
       <EditCustomerModal finishUpdateCustomer={handleFinishUpdateCustomer} customer={editCustomer} user={user} />
@@ -93,19 +96,19 @@ function getColumns(
     {
       title: 'ID',
       dataIndex: 'id',
-      width: 300,
-      ellipsis: true,
-      onCell: (record: Customer) => {
-        return {
-          onClick: () => setDetailCustomerID(record.id),
-        };
-      },
       render: (value: string) => {
-        return (
-          <Tooltip placement="topLeft" title={value}>
-            {value}
-          </Tooltip>
-        );
+        return {
+          children: (
+            <Tooltip placement="topLeft" title={value}>
+              <div className="overflow-hidden whitespace-nowrap overflow-ellipsis w-full">{value}</div>
+            </Tooltip>
+          ),
+          props: {
+            style: {
+              maxWidth: 192,
+            },
+          },
+        };
       },
     },
     {
@@ -152,6 +155,7 @@ function getColumns(
         return renderActions(value, setEditCustomer, setToBeDeletedCustomers);
       },
       fixed: 'right',
+      align: 'center',
     },
   ];
 

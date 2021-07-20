@@ -11,27 +11,62 @@ export interface TicketTableProps {
   tickets: Ticket[];
   customers: Customer[];
   ticketStatuses: TicketStatuses[];
+  verticalScroll?: number;
 }
 
 export function TicketTable(props: TicketTableProps) {
-  const { tickets, customers, ticketStatuses } = props;
+  const { tickets, customers, ticketStatuses, verticalScroll } = props;
 
   const columns = useMemo(() => {
     return getColumns(ticketStatuses, customers);
   }, [ticketStatuses, customers]);
 
-  return <Table columns={columns} dataSource={tickets} scroll={{ y: 100000000, x: 'max-content' }} bordered />;
+  return (
+    <Table
+      columns={columns}
+      dataSource={tickets}
+      scroll={{
+        y: verticalScroll ?? 100000000,
+        x: 'max-content',
+      }}
+      bordered
+    />
+  );
 }
 
 function getColumns(ticketStatuses: TicketStatuses[], customers: Customer[]) {
-  const columns: ColumnsType<any> = [
+  const columns: ColumnsType<Ticket> = [
     {
       title: 'Ticket ID',
       dataIndex: 'id',
-      // width: 250,
-      ellipsis: true,
       fixed: 'left',
-      // align: 'center',
+      render: (value: string) => {
+        return {
+          children: (
+            <Tooltip placement="topLeft" title={value}>
+              <div className="overflow-hidden whitespace-nowrap overflow-ellipsis w-40">{value}</div>
+            </Tooltip>
+          ),
+          props: {
+            style: {
+              maxWidth: 192,
+            },
+          },
+        };
+      },
+    },
+    {
+      title: 'Opened At',
+      dataIndex: 'created_at',
+      render: (createdAt: string) => {
+        const [date, time] = createdAt.replaceAll('Z', '').split('T');
+        const formatedTime = time.slice(0, 8);
+
+        return date + ' ' + formatedTime;
+      },
+      sorter: (a, b) => (a.created_at > b.created_at ? 1 : -1),
+      defaultSortOrder: 'descend',
+      sortDirections: ['descend', 'ascend'],
     },
     {
       title: 'Status',
@@ -71,19 +106,9 @@ function getColumns(ticketStatuses: TicketStatuses[], customers: Customer[]) {
       width: 150,
     },
     {
-      title: 'Opened At',
-      dataIndex: 'created_at',
-      render: (createdAt: string) => {
-        const [date, time] = createdAt.replaceAll('Z', '').split('T');
-        const formatedTime = time.slice(0, 8);
-
-        return date + ' ' + formatedTime;
-      },
-    },
-    {
-      width: 150,
       title: 'Grand Total',
       dataIndex: ['quote'],
+      width: 150,
     },
     {
       title: 'Paid',

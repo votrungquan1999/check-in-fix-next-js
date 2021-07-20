@@ -113,7 +113,7 @@ export default withAuth(function MainContainer({ employee, user }) {
             height: 'fit-content',
           }}
         >
-          <Content style={{ padding: '20px' }}>{MainContainerContents[currentTab]}</Content>
+          <Content>{MainContainerContents[currentTab]}</Content>
         </Layout>
       </Layout>
     </Layout>

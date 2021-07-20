@@ -1,6 +1,5 @@
 import { Form, FormInstance, Input, Modal } from 'antd';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ModalContentContainerStyled } from '../styles/Components/CustomerDetailModal';
 import firebase from 'firebase';
 import { PhoneOutlined, EditOutlined, MailOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { Customer, updateCustomer } from '../services/customers';
@@ -8,6 +7,7 @@ import { CustomResult, CustomSpinner } from '../styles/commons';
 import { get, isNil } from 'lodash/fp';
 import { PhoneNumberInput } from './input';
 import { trimExtraCharacterPhoneNumber, validatePhoneNumber } from '../utils/phoneNumber';
+import { ModalContentContainerStyled } from '../styles/commonModal';
 
 interface CustomerDetailModalProps {
   // visibility: boolean;

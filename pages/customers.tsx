@@ -1,5 +1,5 @@
 import { Form, Input, Typography } from 'antd';
-import { useForm } from 'antd/lib/form/Form';
+import { FormProps, useForm } from 'antd/lib/form/Form';
 import Text from 'antd/lib/typography/Text';
 import Title from 'antd/lib/typography/Title';
 import { isNil } from 'lodash/fp';
@@ -15,7 +15,11 @@ import {
   InnerChosingBox,
   PhoneNumberInputPageStyled,
 } from '../src/styles/customers';
-import { transformPhoneNumberToDisplay } from '../src/utils/phoneNumber';
+import {
+  transformPhoneNumberToDisplay,
+  trimExtraCharacterPhoneNumber,
+  validatePhoneNumber,
+} from '../src/utils/phoneNumber';
 
 interface PhoneNumberInputFormProps {
   handleSubmitPhoneNumber: (value: string) => void;
@@ -26,57 +30,65 @@ interface CustomerChosingFormProps {
 }
 
 function PhoneNumberInputForm({ handleSubmitPhoneNumber }: PhoneNumberInputFormProps) {
-  const [phoneNumber, setPhoneNumber] = useState('');
   const [validationStatus, setValidationStatus] = useState<'error' | undefined>();
   const [isOk, setIsOk] = useState(false);
 
   const [form] = useForm();
 
+  const checkPhoneNumberOK = useCallback((phoneNumber: string) => {
+    setIsOk(!validatePhoneNumber(phoneNumber));
+  }, []);
+
   const handleClickNumber = useCallback(
     (value: number) => {
+      const phoneNumber = form.getFieldsValue()['phone'] ?? '';
       const newPhoneNumber = phoneNumber + value.toString();
-      setPhoneNumber(newPhoneNumber);
 
-      if (newPhoneNumber.length !== 10) {
-        setIsOk(false);
-      } else {
-        setIsOk(true);
-      }
+      checkPhoneNumberOK(phoneNumber);
 
       form.setFieldsValue({ phone: transformPhoneNumberToDisplay(newPhoneNumber) });
 
       setValidationStatus(undefined);
     },
-    [phoneNumber],
+    [form],
   );
 
   const handleDeleteOneNumber = useCallback(() => {
+    const phoneNumber = form.getFieldsValue()['phone'] ?? '';
     if (!phoneNumber.length) {
       return;
     }
 
     const newPhoneNumber = phoneNumber.substr(0, phoneNumber.length - 1);
-    setPhoneNumber(newPhoneNumber);
 
-    if (newPhoneNumber.length !== 10) {
-      setIsOk(false);
-    } else {
-      setIsOk(true);
-    }
+    checkPhoneNumberOK(phoneNumber);
 
     form.setFieldsValue({ phone: transformPhoneNumberToDisplay(newPhoneNumber) });
 
     setValidationStatus(undefined);
-  }, [phoneNumber]);
+  }, [form]);
 
   const handleClickSubmit = useCallback(() => {
-    if (phoneNumber.length !== 10) {
+    const phoneNumber = form.getFieldsValue()['phone'];
+    if (isNil(phoneNumber)) {
       setValidationStatus('error');
       return;
     }
 
-    handleSubmitPhoneNumber(phoneNumber);
-  }, [phoneNumber]);
+    const err = validatePhoneNumber(phoneNumber);
+    if (err) {
+      setValidationStatus(err);
+      return;
+    }
+
+    handleSubmitPhoneNumber(trimExtraCharacterPhoneNumber(phoneNumber)!);
+  }, [form]);
+
+  const handleInputPhoneNumberByKeyboard: React.ChangeEventHandler<HTMLInputElement> = useCallback((e) => {
+    const phoneNumber = e.target.value;
+
+    checkPhoneNumberOK(phoneNumber);
+  }, []);
 
   return (
     <PhoneNumberInputPageStyled className="h-screen w-screen flex items-center justify-center">
@@ -94,8 +106,8 @@ function PhoneNumberInputForm({ handleSubmitPhoneNumber }: PhoneNumberInputFormP
           <CustomPhoneNumberInputStyled
             type={'text'}
             placeholder="Phone Number"
-            disabled={true}
             allowClear
+            onChange={handleInputPhoneNumberByKeyboard}
             className="text-center"
           />
         </Form.Item>
@@ -117,7 +129,6 @@ function CustomerChosingForm({ customers }: CustomerChosingFormProps) {
   const customersInfo = useMemo(() => {
     return customers.map((customer) => {
       const handleClick = () => {
-        // router.push(`/customers/${customer.id}/create-ticket`);
         router.push(`/pick-customer-successfully`);
       };
 

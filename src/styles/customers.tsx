@@ -1,6 +1,6 @@
-import { Input } from 'antd';
 import { CSSProperties } from 'react';
 import styled from 'styled-components';
+import { PhoneNumberInput } from '../Components/input';
 
 export const PhoneNumberInputPageStyled = styled.div`
   .ant-input-affix-wrapper {
@@ -60,7 +60,7 @@ export const InnerChosingBox = styled.div`
   padding: 10px 0px;
 `;
 
-export const CustomPhoneNumberInputStyled = styled(Input)`
+export const CustomPhoneNumberInputStyled = styled(PhoneNumberInput)`
   && input {
     text-align: center;
   }

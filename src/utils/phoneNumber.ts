@@ -28,6 +28,8 @@ export function trimExtraCharacterPhoneNumber(phoneNumber: string | undefined) {
 }
 
 export function validatePhoneNumber(phoneNumber: string | undefined) {
+  phoneNumber = trimExtraCharacterPhoneNumber(phoneNumber) as string;
+
   if (isNil(phoneNumber)) {
     return;
   }

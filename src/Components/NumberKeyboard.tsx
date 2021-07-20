@@ -34,13 +34,7 @@ export default function NumberKeyboard({ handleClickNumber, handleOK, isOK, hand
       </NumberButtonStyled>
     );
 
-    // NumberButtons.push(NumberButton);
-
-    NumberButtons.push(
-      <Button type="primary" size="large" shape="round" onClick={() => handleClickNumber(i)} style={{ height: '100%' }}>
-        {i}
-      </Button>,
-    );
+    NumberButtons.push(NumberButton);
   }
 
   NumberButtons.push(DeleteButton);

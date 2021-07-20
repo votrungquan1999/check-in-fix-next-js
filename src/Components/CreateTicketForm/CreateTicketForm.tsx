@@ -96,7 +96,7 @@ export function CreateTicketForm(props: CreateTicketFormProps) {
   return (
     <Spin spinning={loading} size="large">
       <div className="h-full flex items-center justify-center">
-        <Form form={form} onFieldsChange={handleFieldChange} layout="vertical">
+        <Form form={form} onFieldsChange={handleFieldChange} layout="vertical" className="w-11/12">
           <Typography.Title level={1}>Create New Ticket</Typography.Title>
           <CreateTicketFormStyled>
             <Form.Item
@@ -133,7 +133,7 @@ export function CreateTicketForm(props: CreateTicketFormProps) {
               <Checkbox>SMS Notification</Checkbox>
             </Form.Item>
           </CreateTicketFormStyled>
-          <Form.Item name="description" label="Customer Notes" className="col-span-2">
+          <Form.Item name="description" label="Customer Notes">
             <Input.TextArea placeholder="Add note" autoSize={{ minRows: 8, maxRows: 8 }} />
           </Form.Item>
           <Form.Item>

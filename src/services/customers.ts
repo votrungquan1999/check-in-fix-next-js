@@ -213,7 +213,7 @@ export async function deleteCustomersByIDs(IDs: string[], token: string) {
   }
 }
 
-export async function getCustomerDetailByID(id: string, token: string) {
+export async function getCustomerDetailByID(id: string, token: string, alertUser: boolean = true) {
   const baseBEURL = process.env.NEXT_PUBLIC_BACKEND_URL;
   try {
     const resp = await axios.get<CommonResponse<Customer>>(`${baseBEURL}/private/customers/${id}`, {
@@ -225,7 +225,9 @@ export async function getCustomerDetailByID(id: string, token: string) {
     });
 
     if (resp.status !== 200) {
-      alert(`get detail customer error, due to ${resp.data.error?.message}`);
+      if (alertUser) {
+        alert(`get detail customer error, due to ${resp.data.error?.message}`);
+      }
       return;
     }
 
