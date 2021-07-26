@@ -58,7 +58,7 @@ export function CreateTicketModal(props: CreateTicketModalProps) {
         <div className="flex w-full">
           <Button type="primary" className="flex items-center" onClick={() => handleClickCreateCustomer()}>
             <FileAddOutlined />
-            Add New Ticket
+            Add New Customer
           </Button>
           <SearchCustomerForm
             setSelectedCustomer={(pickedCustomerID) => setCustomerID(pickedCustomerID)}
