@@ -18,7 +18,9 @@ export function DeleteCustomerModal(props: DeleteCustomerModalProps) {
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const resetModal = useCallback(() => {
+    setStage(0);
     setDeleting(false);
+    setConfirmDelete(false);
     finishDeleteCustomers();
   }, [finishDeleteCustomers]);
 

@@ -3,8 +3,9 @@ import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { isArray, isNil } from 'lodash/fp';
 import { CustomSpinner } from '../src/styles/commons';
-import { CreateCustomerForm } from '../src/Components/CreateCustomerForm';
+import { CreateCustomerForm } from '../src/Components/CreateCustomerForm/CreateCustomerForm';
 import { useEffect } from 'react';
+import { useCallback } from 'react';
 
 export default withAuth(function CreateCustomer(props) {
   const { user, employee } = props;
@@ -18,7 +19,13 @@ export default withAuth(function CreateCustomer(props) {
     }
 
     setPhoneNumber(rawPhoneNumber ?? '');
-  });
+  }, [router]);
+
+  const handleCreateCustomerSuccessfully = useCallback(() => {
+    setTimeout(() => {
+      router.push('/customers');
+    }, 3000);
+  }, [router]);
 
   if (isNil(phoneNumber)) {
     return (
@@ -28,5 +35,16 @@ export default withAuth(function CreateCustomer(props) {
     );
   }
 
-  return <CreateCustomerForm employee={employee} user={user} initPhoneNumber={phoneNumber} />;
+  return (
+    <div className="h-screen w-screen flex items-center justify-center">
+      <div className="w-6/12">
+        <CreateCustomerForm
+          employee={employee}
+          user={user}
+          initPhoneNumber={phoneNumber}
+          onCreateCustomerSuccessfully={handleCreateCustomerSuccessfully}
+        />
+      </div>
+    </div>
+  );
 });

@@ -32,7 +32,7 @@ export const FullHeightContainter = styled.div`
 
 export function CustomSpinner(props: SpinProps | SpinState | { children: ReactElement }) {
   return (
-    <div className="h-full flex items-center justify-center">
+    <div className="h-full w-full flex items-center justify-center">
       <Spin {...props} size="large" />
     </div>
   );

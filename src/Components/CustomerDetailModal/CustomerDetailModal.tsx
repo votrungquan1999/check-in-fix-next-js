@@ -80,10 +80,6 @@ export function CustomerDetailModal(props: CustomerDetailModalProps) {
     setDetailCustomerID(undefined);
   }, []);
 
-  const onCancel = useCallback(() => {
-    resetModal();
-  }, []);
-
   const customerDetailActions = useMemo(() => {
     type actionKeys = '1';
 

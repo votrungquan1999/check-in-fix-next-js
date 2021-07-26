@@ -1,14 +1,15 @@
-import { Form, Input, Modal } from 'antd';
+import { FileAddOutlined } from '@ant-design/icons';
+import { Button, Form, Input, Modal, Select } from 'antd';
 import { FormInstance, useForm } from 'antd/lib/form/Form';
+import axios from 'axios';
 import { get, isNil } from 'lodash/fp';
-import React from 'react';
-import { useMemo } from 'react';
-import { useState } from 'react';
-import { useCallback } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { WithAuthProps } from '../firebase/withAuth';
-import { getCustomerDetailByID } from '../services/customers';
-import { ModalContentContainerStyled } from '../styles/commonModal';
-import { CustomResult, CustomSpinner } from '../styles/commons';
+import { Customer, getCustomerDetailByID, searchCustomers } from '../services/customers';
+import { CustomResult } from '../styles/commons';
+import { useContinuousRequest } from '../utils/asyncReq';
+import { transformPhoneNumberToDisplay } from '../utils/phoneNumber';
+import { CreateCustomerModal } from './CreateCustomerModal/CreateCustomerModal';
 import { CreateTicketForm } from './CreateTicketForm/CreateTicketForm';
 
 interface CreateTicketModalProps extends WithAuthProps {
@@ -21,57 +22,51 @@ export function CreateTicketModal(props: CreateTicketModalProps) {
   const [customerID, setCustomerID] = useState<string>();
   const [form] = useForm();
   const [inputCustomerIDValidationError, setInputCustomerIDValidationError] = useState({});
-  const [loading, setLoading] = useState(false);
   const [createdSuccessfully, setCreatedSuccessfully] = useState(false);
-
-  const setInvalidCustomerID = useCallback(() => {
-    setInputCustomerIDValidationError({
-      customer_id: 'Invalid Customer ID',
-    });
-  }, []);
-
-  const handleInputCustomerID = useCallback(async () => {
-    setLoading(true);
-    const fieldValues = form.getFieldsValue();
-    const customerIdInput = fieldValues.customer_id;
-    if (isNil(customerIdInput)) {
-      setInvalidCustomerID();
-      setLoading(false);
-      return;
-    }
-
-    const { token } = await user.getIdTokenResult();
-
-    const customer = await getCustomerDetailByID(customerIdInput, token, false);
-    if (isNil(customer)) {
-      setInvalidCustomerID();
-      setLoading(false);
-      return;
-    }
-
-    setCustomerID(customerIdInput);
-    setLoading(false);
-  }, [setInvalidCustomerID, user]);
-
-  const handleOK = useCallback(() => {
-    if (isNil(customerID)) {
-      return handleInputCustomerID();
-    }
-
-    handleFinishCreateTicket();
-  }, [handleFinishCreateTicket, customerID, handleInputCustomerID]);
+  const [isCreateCustomerModalVisible, setIsCreateCustomerModalVisible] = useState(false);
 
   const resetModal = useCallback(() => {
     form.resetFields();
-    setLoading(false);
     setCustomerID(undefined);
     setInputCustomerIDValidationError({});
     handleFinishCreateTicket();
   }, [handleFinishCreateTicket]);
 
+  const handleOK = useCallback(() => {
+    resetModal();
+  }, [resetModal]);
+
+  const handleCancel = useCallback(() => {
+    if (isNil(customerID)) {
+      resetModal();
+    }
+
+    setCustomerID(undefined);
+  }, [customerID, resetModal]);
+
+  const handleClickCreateCustomer = useCallback(() => {
+    setIsCreateCustomerModalVisible(true);
+  }, []);
+
+  const handleFinishCreateCustomer = useCallback(() => {
+    setIsCreateCustomerModalVisible(false);
+  }, []);
+
   const modalContent = useMemo(() => {
     if (isNil(customerID)) {
-      return <GetCustomerIDForm form={form} validationError={inputCustomerIDValidationError} loading={loading} />;
+      return (
+        <div className="flex w-full">
+          <Button type="primary" className="flex items-center" onClick={() => handleClickCreateCustomer()}>
+            <FileAddOutlined />
+            Add New Ticket
+          </Button>
+          <SearchCustomerForm
+            setSelectedCustomer={(pickedCustomerID) => setCustomerID(pickedCustomerID)}
+            employee={employee}
+            user={user}
+          />
+        </div>
+      );
     }
 
     return (
@@ -83,7 +78,7 @@ export function CreateTicketModal(props: CreateTicketModalProps) {
         setCreatedSuccessfully={setCreatedSuccessfully}
       />
     );
-  }, [customerID, inputCustomerIDValidationError, loading, form, employee, user, createdSuccessfully]);
+  }, [customerID, inputCustomerIDValidationError, form, employee, user, createdSuccessfully]);
 
   const okButtonText = useMemo(() => {
     if (isNil(customerID)) {
@@ -93,47 +88,113 @@ export function CreateTicketModal(props: CreateTicketModalProps) {
     return 'Done';
   }, [customerID]);
 
+  const cancelButtonText = useMemo(() => {
+    if (isNil(customerID)) {
+      return 'Cancel';
+    }
+
+    return 'Back';
+  }, [customerID]);
+
+  const footer = useMemo(() => {
+    const OkButton = customerID ? (
+      <Button onClick={handleOK} type="primary" disabled={!createdSuccessfully}>
+        {okButtonText}
+      </Button>
+    ) : undefined;
+
+    const CancelButton = (
+      <Button onClick={handleCancel} disabled={createdSuccessfully}>
+        {cancelButtonText}
+      </Button>
+    );
+
+    return [CancelButton, OkButton];
+  }, [customerID, okButtonText, cancelButtonText, createdSuccessfully, handleCancel, handleOK]);
+
   return (
     <div>
       <Modal
         visible={createTicketModalVisibility}
         title="Create Ticket"
-        onOk={handleOK}
-        okText={okButtonText}
-        okButtonProps={{
-          disabled: okButtonText === 'Done' && !createdSuccessfully,
-        }}
         onCancel={resetModal}
         width={'80%'}
-        confirmLoading={loading}
+        footer={footer}
       >
         {modalContent}
+        <CreateCustomerModal
+          employee={employee}
+          user={user}
+          isCreateCustomerModalVisible={isCreateCustomerModalVisible}
+          finishCreateCustomer={handleFinishCreateCustomer}
+        />
       </Modal>
     </div>
   );
 }
 
-interface GetCustomerIDFormProps {
-  form: FormInstance<any>;
-  validationError: object;
-  loading: boolean;
+interface SearchCustomerFormProps extends WithAuthProps {
+  setSelectedCustomer: (customerID: string) => any;
 }
 
-function GetCustomerIDForm({ form, validationError, loading }: GetCustomerIDFormProps) {
+function SearchCustomerForm(props: SearchCustomerFormProps) {
+  const { employee, user, setSelectedCustomer } = props;
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const continuousReq = useContinuousRequest();
+
+  const handleSearchKeyChange = useCallback(
+    async (value) => {
+      const { token } = await user.getIdTokenResult();
+
+      const newReqID = continuousReq.getNewestID();
+
+      const CancelToken = axios.CancelToken;
+      const source = CancelToken.source();
+      continuousReq.addReq(newReqID, source);
+
+      const customerList = await searchCustomers(employee.subscriber_id, token, value, source);
+
+      const isLatestData = continuousReq.processReqResponse(newReqID);
+      if (isLatestData) {
+        setCustomers(customerList);
+      }
+    },
+    [user, employee, continuousReq],
+  );
+
+  const options = useMemo(() => {
+    return customers.map((customer) => {
+      const phoneNumber = transformPhoneNumberToDisplay(customer.phone_number);
+
+      return (
+        <Select.Option value={customer.id} key={customer.id}>
+          <div>
+            <div className="text-lg">
+              {customer.first_name} {customer.last_name}
+            </div>
+            <div className="text-sm text-gray-400">{phoneNumber}</div>
+          </div>
+        </Select.Option>
+      );
+    });
+  }, [customers]);
+
+  const handleSelectCustomer = useCallback((customerID: string) => {
+    setSelectedCustomer(customerID);
+  }, []);
+
   return (
-    <div>
-      <Form form={form}>
-        <Form.Item
-          className="mb-0"
-          name={'customer_id'}
-          label={'Customer ID'}
-          required
-          help={get('customer_id')(validationError)}
-          validateStatus={isNil(get('customer_id')(validationError)) ? undefined : 'error'}
-        >
-          <Input disabled={loading} />
-        </Form.Item>
-      </Form>
+    <div className="w-full">
+      <Select
+        className="w-full"
+        placeholder={'Enter Search Key Here'}
+        showSearch
+        filterOption={false}
+        onSearch={handleSearchKeyChange}
+        onSelect={handleSelectCustomer}
+      >
+        {options}
+      </Select>
     </div>
   );
 }
@@ -149,7 +210,7 @@ function CreateTicketFormContent(props: CreateTicketModalContentProps) {
 
   const handleCreateTicketSuccessfully = useCallback(() => {
     setCreatedSuccessfully(true);
-  }, []);
+  }, [setCreatedSuccessfully]);
 
   if (createdSuccessfully) {
     return <CustomResult status="success" title="Create Ticket Successfully" />;

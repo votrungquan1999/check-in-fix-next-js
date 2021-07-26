@@ -6,6 +6,7 @@ import { WithAuthProps } from '../../firebase/withAuth';
 import { Customer, getCustomers, searchCustomers } from '../../services/customers';
 import { Subscriber } from '../../services/subscribers';
 import { CustomSpinner, MainContainerFullHeightStyled, MainContainerLoadingStyled } from '../../styles/commons';
+import { CreateCustomerModal } from '../CreateCustomerModal/CreateCustomerModal';
 import { CustomerTable } from '../CustomerTable';
 import { DeleteCustomerModal } from '../DeleteCustomersModal';
 import { SearchInput } from '../SearchInput';
@@ -22,6 +23,7 @@ export function Customers(props: WithAuthProps) {
   const [selectedCustomers, setSelectedCustomers] = useState<Customer[]>([]);
   const [toBeDeletedCustomers, setToBeDeletedCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isCreateCustomerModalVisible, setIsCreateCustomerModalVisible] = useState(false);
 
   const getAndSetCustomers = useCallback(async () => {
     const { token } = await user.getIdTokenResult();
@@ -95,10 +97,10 @@ export function Customers(props: WithAuthProps) {
   const createCustomerButton = useMemo(() => {
     return (
       <div className="mr-2">
-        <Button>
-          <a href="/create-customer" target="_blank">
-            Create New Customer
-          </a>
+        <Button onClick={() => setIsCreateCustomerModalVisible(true)}>
+          {/* <a href="/create-customer" target="_blank">
+          </a> */}
+          Create New Customer
         </Button>
       </div>
     );
@@ -130,6 +132,13 @@ export function Customers(props: WithAuthProps) {
     await getAndSetCustomers();
     setLoading(false);
   }, [setToBeDeletedCustomers, setCustomers, setLoading]);
+
+  const handleFinishCreateCustomer = useCallback(async () => {
+    setIsCreateCustomerModalVisible(false);
+    setLoading(true);
+    await getAndSetCustomers();
+    setLoading(false);
+  }, []);
 
   return !customers ? (
     <MainContainerLoadingStyled />
@@ -169,6 +178,13 @@ export function Customers(props: WithAuthProps) {
           sendMessageModalVisibility={sendMessageModalVisibility}
           setSendMessageModalVisibility={setSendMessageModalVisibility}
           user={user}
+        />
+
+        <CreateCustomerModal
+          employee={employee}
+          user={user}
+          finishCreateCustomer={handleFinishCreateCustomer}
+          isCreateCustomerModalVisible={isCreateCustomerModalVisible}
         />
       </div>
     </div>

@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { CancelTokenSource } from 'axios';
 import { isUndefined } from 'lodash';
 import { omitBy } from 'lodash/fp';
 import { CommonResponse } from './common';
@@ -19,13 +19,14 @@ export interface Customer {
   country?: string;
 }
 
-export async function searchCustomers(subscriberID: string, token: string, key: string) {
+export async function searchCustomers(subscriberID: string, token: string, key: string, source?: CancelTokenSource) {
   const baseBEURL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   let reqURL = `${baseBEURL}/private/customers?subscriber_id=${subscriberID}&filter=${key}`;
 
   try {
     const resp = await axios.get<CommonResponse<Customer[]>>(reqURL, {
+      cancelToken: source?.token,
       headers: {
         authorization: token,
       },
@@ -40,8 +41,13 @@ export async function searchCustomers(subscriberID: string, token: string, key: 
 
     return resp.data.data;
   } catch (error) {
+    if (axios.isCancel(error)) {
+      return [];
+    }
+
     console.log(error.message);
     alert(`get customers error, please contact tech support for help`);
+    return [];
   }
 }
 
