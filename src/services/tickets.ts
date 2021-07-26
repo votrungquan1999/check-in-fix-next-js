@@ -4,6 +4,7 @@ import { CommonResponse } from './common';
 export interface CreateTicketInput {
   customer_id: string;
   service_id?: string;
+  service?: string;
   description?: string;
   device_model?: string;
   contact_phone_number?: string;

@@ -1,7 +1,7 @@
 import { trimExtraCharacterPhoneNumber, validatePhoneNumber } from '../../utils/phoneNumber';
 import { CreateTicketForm } from './CreateTicketForm';
 
-const REQUIRED_FIELDS = ['service_id'] as const;
+const REQUIRED_FIELDS = [] as const;
 
 export function validateForm(input: CreateTicketForm): [object, boolean] {
   let validationError = {};

@@ -94,6 +94,14 @@ function getColumns(ticketStatuses: TicketStatuses[], customers: Customer[]) {
     },
     {
       title: 'Service',
+      dataIndex: 'service',
+      width: 150,
+      // render: (service: Service) => {
+      //   return serviceMapping[service];
+      // },
+    },
+    {
+      title: 'Service Type',
       dataIndex: 'service_id',
       width: 150,
       render: (service: Service) => {

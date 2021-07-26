@@ -1,4 +1,4 @@
-import { PhoneOutlined, SettingOutlined } from '@ant-design/icons';
+import { MobileOutlined, PhoneOutlined, SettingOutlined } from '@ant-design/icons';
 import { Button, Checkbox, Form, Input, Select, Spin, Typography } from 'antd';
 import { FormProps, useForm } from 'antd/lib/form/Form';
 import { get } from 'lodash/fp';
@@ -15,6 +15,7 @@ export interface CreateTicketForm {
   device_model?: string;
   imei?: string;
   service_id?: string;
+  service?: string;
   sms_notification_enable?: boolean;
 }
 
@@ -43,7 +44,8 @@ export function CreateTicketForm(props: CreateTicketFormProps) {
 
       const createTicketInput: CreateTicketInput = {
         customer_id: customerID,
-        service_id: fieldValues.service_id,
+        // service_id: fieldValues.service_id,
+        service: fieldValues.service,
         description: fieldValues.description,
         device_model: fieldValues.device_model,
         contact_phone_number: fieldValues.contact_phone_number,
@@ -73,21 +75,21 @@ export function CreateTicketForm(props: CreateTicketFormProps) {
     setLoading(false);
   }, [form]);
 
-  const serviceSelectForm = useMemo(() => {
-    return (
-      <Select>
-        {Object.keys(serviceMapping).map((key) => {
-          const serviceName = get(key)(serviceMapping);
+  // const serviceSelectForm = useMemo(() => {
+  //   return (
+  //     <Select>
+  //       {Object.keys(serviceMapping).map((key) => {
+  //         const serviceName = get(key)(serviceMapping);
 
-          return (
-            <Select.Option key={key} value={key}>
-              {serviceName}
-            </Select.Option>
-          );
-        })}
-      </Select>
-    );
-  }, []);
+  //         return (
+  //           <Select.Option key={key} value={key}>
+  //             {serviceName}
+  //           </Select.Option>
+  //         );
+  //       })}
+  //     </Select>
+  //   );
+  // }, []);
 
   const handleFieldChange = useCallback(() => {
     setValidationError({});
@@ -99,7 +101,7 @@ export function CreateTicketForm(props: CreateTicketFormProps) {
         <Form form={form} onFieldsChange={handleFieldChange} layout="vertical" className="w-11/12">
           <Typography.Title level={1}>Create New Ticket</Typography.Title>
           <CreateTicketFormStyled>
-            <Form.Item
+            {/* <Form.Item
               help={get('service_id')(validationError)}
               validateStatus={get('service_id')(validationError) ? 'error' : undefined}
               label="Service"
@@ -107,6 +109,10 @@ export function CreateTicketForm(props: CreateTicketFormProps) {
               rules={[{ required: true }]}
             >
               {serviceSelectForm}
+            </Form.Item> */}
+
+            <Form.Item name="service" label="Service">
+              <Input prefix={<MobileOutlined className="site-form-item-icon" />} placeholder="Service" />
             </Form.Item>
 
             <Form.Item name="device_model" label="Device Model">

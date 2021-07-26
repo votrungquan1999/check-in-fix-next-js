@@ -94,7 +94,7 @@ export function Tickets(props: TicketProps) {
         <Tabs defaultActiveKey="1" type="card" tabBarExtraContent={addTicketButton} className="p-2 pb-0">
           <Tabs.TabPane tab="Pending Tickets" key="1" className="-mt-4">
             <TicketTable
-              tickets={[...pendingTickets, ...pendingTickets]}
+              tickets={[...pendingTickets]}
               customers={customers}
               ticketStatuses={ticketStatuses}
               verticalScroll={verticalScroll}
