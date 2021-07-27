@@ -56,8 +56,43 @@ function getColumns(ticketStatuses: TicketStatuses[], customers: Customer[]) {
       },
     },
     {
+      title: 'Dropped off At',
+      dataIndex: 'dropped_off_at',
+      width: 180,
+      render: (droppedOffAt: string) => {
+        if (isNil(droppedOffAt)) {
+          return droppedOffAt;
+        }
+        const [date, time] = droppedOffAt.replaceAll('Z', '').split('T');
+        const formatedTime = time.slice(0, 8);
+
+        return date + ' ' + formatedTime;
+      },
+      sorter: (a, b) => (a.created_at > b.created_at ? 1 : -1),
+      defaultSortOrder: 'descend',
+      sortDirections: ['descend', 'ascend'],
+    },
+    {
+      title: 'Pick up At',
+      dataIndex: 'pick_up_at',
+      width: 180,
+      render: (pickUpAt: string) => {
+        if (isNil(pickUpAt)) {
+          return pickUpAt;
+        }
+        const [date, time] = pickUpAt.replaceAll('Z', '').split('T');
+        const formatedTime = time.slice(0, 8);
+
+        return date + ' ' + formatedTime;
+      },
+      sorter: (a, b) => (a.created_at > b.created_at ? 1 : -1),
+      defaultSortOrder: 'descend',
+      sortDirections: ['descend', 'ascend'],
+    },
+    {
       title: 'Opened At',
       dataIndex: 'created_at',
+      width: 180,
       render: (createdAt: string) => {
         const [date, time] = createdAt.replaceAll('Z', '').split('T');
         const formatedTime = time.slice(0, 8);
@@ -74,6 +109,18 @@ function getColumns(ticketStatuses: TicketStatuses[], customers: Customer[]) {
       width: 150,
       render: (status: number) => {
         return getCurrentStatusName(ticketStatuses, status);
+      },
+    },
+    {
+      title: 'Is Device Power On',
+      dataIndex: 'is_device_power_on',
+      width: 150,
+      render: (isDevicePowerOn) => {
+        if (isDevicePowerOn) {
+          return 'True';
+        }
+
+        return 'False';
       },
     },
     {

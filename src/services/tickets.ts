@@ -9,6 +9,9 @@ export interface CreateTicketInput {
   device_model?: string;
   contact_phone_number?: string;
   sms_notification_enable?: boolean;
+  is_device_power_on?: boolean;
+  dropped_off_at?: string;
+  pick_up_at?: string;
   imei?: string;
   quote?: number;
   paid?: number;

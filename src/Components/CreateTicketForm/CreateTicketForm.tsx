@@ -1,7 +1,8 @@
 import { MobileOutlined, PhoneOutlined, SettingOutlined } from '@ant-design/icons';
-import { Button, Checkbox, Form, Input, Select, Spin, Typography } from 'antd';
+import { Button, Checkbox, DatePicker, Form, Input, Select, Spin, Typography } from 'antd';
 import { FormProps, useForm } from 'antd/lib/form/Form';
 import { get } from 'lodash/fp';
+import { Moment } from 'moment-timezone';
 import React, { useCallback, useMemo, useState } from 'react';
 import { WithAuthProps } from '../../firebase/withAuth';
 import { createTicket, CreateTicketInput, serviceMapping, Ticket } from '../../services/tickets';
@@ -16,6 +17,9 @@ export interface CreateTicketForm {
   imei?: string;
   service_id?: string;
   service?: string;
+  is_device_power_on?: boolean;
+  dropped_off_at?: Moment;
+  pick_up_at?: Moment;
   sms_notification_enable?: boolean;
 }
 
@@ -51,6 +55,9 @@ export function CreateTicketForm(props: CreateTicketFormProps) {
         contact_phone_number: fieldValues.contact_phone_number,
         sms_notification_enable: fieldValues.sms_notification_enable ?? false,
         imei: fieldValues.imei,
+        is_device_power_on: fieldValues.is_device_power_on,
+        dropped_off_at: fieldValues.dropped_off_at?.toISOString(),
+        pick_up_at: fieldValues.pick_up_at?.toISOString(),
       };
 
       const { token } = await user.getIdTokenResult();
@@ -110,6 +117,13 @@ export function CreateTicketForm(props: CreateTicketFormProps) {
             >
               {serviceSelectForm}
             </Form.Item> */}
+            <Form.Item name="dropped_off_at" label="Dropped off At">
+              <DatePicker className="w-full" />
+            </Form.Item>
+
+            <Form.Item name="pick_up_at" label="Pick up At">
+              <DatePicker className="w-full" />
+            </Form.Item>
 
             <Form.Item name="service" label="Service">
               <Input prefix={<MobileOutlined className="site-form-item-icon" />} placeholder="Service" />
@@ -137,6 +151,10 @@ export function CreateTicketForm(props: CreateTicketFormProps) {
 
             <Form.Item name="sms_notification_enable" valuePropName="checked">
               <Checkbox>SMS Notification</Checkbox>
+            </Form.Item>
+
+            <Form.Item name="is_device_power_on" valuePropName="checked">
+              <Checkbox>Device Still Power On</Checkbox>
             </Form.Item>
           </CreateTicketFormStyled>
           <Form.Item name="description" label="Customer Notes">
