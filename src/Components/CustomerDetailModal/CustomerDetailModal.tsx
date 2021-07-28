@@ -9,7 +9,7 @@ import {
   TicketStatuses,
 } from '../../services/tickets';
 import { CustomSpinner } from '../../styles/commons';
-import { TicketTable } from '../TicketTable';
+import { TicketTable } from '../TicketTable/TicketTable';
 import { DetailTable } from '../DetailTable';
 import { EditCustomerModal } from '../EditCustomerModal';
 import { DownOutlined } from '@ant-design/icons';

@@ -6,7 +6,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { WithAuthProps } from '../firebase/withAuth';
 import { Customer } from '../services/customers';
 import { transformPhoneNumberToDisplay } from '../utils/phoneNumber';
-import { transformDataForSelection } from '../utils/table';
+import { transformDataSourceToHaveKey } from '../utils/table';
 import { CustomerDetailModal } from './CustomerDetailModal/CustomerDetailModal';
 import { EditCustomerModal } from './EditCustomerModal';
 import { TableContainerStyled } from './Layout/styles';
@@ -40,7 +40,7 @@ export function CustomerTable(props: CustomerTableProps) {
 
   const tableData = useMemo(() => {
     if (customers) {
-      return transformDataForSelection(customers);
+      return transformDataSourceToHaveKey(customers);
     }
 
     return;

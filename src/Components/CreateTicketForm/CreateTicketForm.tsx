@@ -1,7 +1,8 @@
-import { MobileOutlined, PhoneOutlined, SettingOutlined } from '@ant-design/icons';
+import { MinusCircleOutlined, MobileOutlined, PhoneOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons';
 import { Button, Checkbox, DatePicker, Form, Input, Select, Spin, Typography } from 'antd';
 import { FormProps, useForm } from 'antd/lib/form/Form';
-import { get } from 'lodash/fp';
+// import { isEmpty, isUndefined } from 'lodash';
+import { filter, get, isEmpty, isNil, isUndefined, negate } from 'lodash/fp';
 import { Moment } from 'moment-timezone';
 import React, { useCallback, useMemo, useState } from 'react';
 import { WithAuthProps } from '../../firebase/withAuth';
@@ -13,14 +14,17 @@ import { CreateTicketFormStyled } from './styles';
 export interface CreateTicketForm {
   contact_phone_number?: string;
   description?: string;
-  device_model?: string;
-  imei?: string;
-  service_id?: string;
-  service?: string;
-  is_device_power_on?: boolean;
   dropped_off_at?: Moment;
   pick_up_at?: Moment;
   sms_notification_enable?: boolean;
+  devices?: CreateTicketFormDevice[];
+}
+
+interface CreateTicketFormDevice {
+  is_device_power_on?: boolean;
+  imei?: string;
+  device_model?: string;
+  service?: string;
 }
 
 interface CreateTicketFormProps extends WithAuthProps {
@@ -46,18 +50,23 @@ export function CreateTicketForm(props: CreateTicketFormProps) {
         return;
       }
 
+      const devices = filter<CreateTicketFormDevice>((device) => {
+        return !(
+          isNil(device.device_model) &&
+          isNil(device.imei) &&
+          isNil(device.is_device_power_on) &&
+          isNil(device.service)
+        );
+      })(fieldValues.devices);
+
       const createTicketInput: CreateTicketInput = {
         customer_id: customerID,
-        // service_id: fieldValues.service_id,
-        service: fieldValues.service,
         description: fieldValues.description,
-        device_model: fieldValues.device_model,
         contact_phone_number: fieldValues.contact_phone_number,
         sms_notification_enable: fieldValues.sms_notification_enable ?? false,
-        imei: fieldValues.imei,
-        is_device_power_on: fieldValues.is_device_power_on,
         dropped_off_at: fieldValues.dropped_off_at?.toISOString(),
         pick_up_at: fieldValues.pick_up_at?.toISOString(),
+        devices: devices,
       };
 
       const { token } = await user.getIdTokenResult();
@@ -82,22 +91,6 @@ export function CreateTicketForm(props: CreateTicketFormProps) {
     setLoading(false);
   }, [form]);
 
-  // const serviceSelectForm = useMemo(() => {
-  //   return (
-  //     <Select>
-  //       {Object.keys(serviceMapping).map((key) => {
-  //         const serviceName = get(key)(serviceMapping);
-
-  //         return (
-  //           <Select.Option key={key} value={key}>
-  //             {serviceName}
-  //           </Select.Option>
-  //         );
-  //       })}
-  //     </Select>
-  //   );
-  // }, []);
-
   const handleFieldChange = useCallback(() => {
     setValidationError({});
   }, []);
@@ -108,15 +101,6 @@ export function CreateTicketForm(props: CreateTicketFormProps) {
         <Form form={form} onFieldsChange={handleFieldChange} layout="vertical" className="w-11/12">
           <Typography.Title level={1}>Create New Ticket</Typography.Title>
           <CreateTicketFormStyled>
-            {/* <Form.Item
-              help={get('service_id')(validationError)}
-              validateStatus={get('service_id')(validationError) ? 'error' : undefined}
-              label="Service"
-              name="service_id"
-              rules={[{ required: true }]}
-            >
-              {serviceSelectForm}
-            </Form.Item> */}
             <Form.Item name="dropped_off_at" label="Dropped off At">
               <DatePicker className="w-full" />
             </Form.Item>
@@ -124,19 +108,6 @@ export function CreateTicketForm(props: CreateTicketFormProps) {
             <Form.Item name="pick_up_at" label="Pick up At">
               <DatePicker className="w-full" />
             </Form.Item>
-
-            <Form.Item name="service" label="Service">
-              <Input prefix={<MobileOutlined className="site-form-item-icon" />} placeholder="Service" />
-            </Form.Item>
-
-            <Form.Item name="device_model" label="Device Model">
-              <Input prefix={<SettingOutlined className="site-form-item-icon" />} placeholder="Device Model" />
-            </Form.Item>
-
-            <Form.Item name="imei" label="IMEI">
-              <Input prefix={<SettingOutlined className="site-form-item-icon" />} placeholder="IMEI" />
-            </Form.Item>
-
             <Form.Item
               help={get('contact_phone_number')(validationError)}
               validateStatus={get('contact_phone_number')(validationError) ? 'error' : undefined}
@@ -160,6 +131,7 @@ export function CreateTicketForm(props: CreateTicketFormProps) {
           <Form.Item name="description" label="Customer Notes">
             <Input.TextArea placeholder="Add note" autoSize={{ minRows: 8, maxRows: 8 }} />
           </Form.Item>
+          <DevicesInputForm />
           <Form.Item>
             <Button type="primary" onClick={handleSubmitForm}>
               Submit
@@ -168,5 +140,45 @@ export function CreateTicketForm(props: CreateTicketFormProps) {
         </Form>
       </div>
     </Spin>
+  );
+}
+
+function DevicesInputForm() {
+  return (
+    <div className="w-full">
+      <Typography.Title level={4}>Devices</Typography.Title>
+      <Form.List name="devices">
+        {(fields, { add, remove }) => (
+          <>
+            {fields.map(({ key, name, fieldKey, ...restField }) => {
+              return (
+                <div key={key} className="flex flex-grow w-full gap-x-5">
+                  <Form.Item name={[name, 'service']} label="Service" className="w-full">
+                    <Input prefix={<MobileOutlined className="site-form-item-icon" />} placeholder="Service" />
+                  </Form.Item>
+
+                  <Form.Item name={[name, 'device_model']} label="Device Model" className="w-full">
+                    <Input prefix={<SettingOutlined className="site-form-item-icon" />} placeholder="Device Model" />
+                  </Form.Item>
+
+                  <Form.Item name={[name, 'imei']} label="IMEI" className="w-full">
+                    <Input prefix={<SettingOutlined className="site-form-item-icon" />} placeholder="IMEI" />
+                  </Form.Item>
+
+                  <div className="flex items-center">
+                    <MinusCircleOutlined onClick={() => remove(name)} />
+                  </div>
+                </div>
+              );
+            })}
+            <Form.Item>
+              <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                Add field
+              </Button>
+            </Form.Item>
+          </>
+        )}
+      </Form.List>
+    </div>
   );
 }

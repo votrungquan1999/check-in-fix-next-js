@@ -4,15 +4,17 @@ import { CommonResponse } from './common';
 export interface CreateTicketInput {
   customer_id: string;
   service_id?: string;
-  service?: string;
   description?: string;
-  device_model?: string;
   contact_phone_number?: string;
   sms_notification_enable?: boolean;
-  is_device_power_on?: boolean;
   dropped_off_at?: string;
   pick_up_at?: string;
-  imei?: string;
+  devices?: {
+    is_device_power_on?: boolean;
+    imei?: string;
+    device_model?: string;
+    service?: string;
+  }[];
   quote?: number;
   paid?: number;
 }
@@ -51,12 +53,21 @@ export interface Ticket {
   quote?: number;
   paid?: number;
 
+  devices?: TicketDevice[];
+
   created_at: string;
   updated_at: string;
 
   approved_by?: string;
   technician_notes?: string;
   problem?: string;
+}
+
+export interface TicketDevice {
+  is_device_power_on?: boolean;
+  imei?: string;
+  device_model?: string;
+  service?: string;
 }
 
 export async function createTicket(input: CreateTicketInput, token: string) {

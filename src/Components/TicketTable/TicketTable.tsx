@@ -1,11 +1,14 @@
 import { EllipsisOutlined } from '@ant-design/icons';
 import { Button, Dropdown, Menu, Table, Tooltip } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
-import { find, indexBy, isNil } from 'lodash/fp';
+import { find, isNil } from 'lodash/fp';
 import React, { useMemo } from 'react';
-import { Customer } from '../services/customers';
-import { Service, serviceMapping, Ticket, TicketStatuses } from '../services/tickets';
-import { transformPhoneNumberToDisplay } from '../utils/phoneNumber';
+import { useCallback } from 'react';
+import { Customer } from '../../services/customers';
+import { Service, serviceMapping, Ticket, TicketDevice, TicketStatuses } from '../../services/tickets';
+import { transformPhoneNumberToDisplay } from '../../utils/phoneNumber';
+import { transformDataSourceToHaveKey } from '../../utils/table';
+import { ExpandableTableContainerStyled } from './styles';
 
 export interface TicketTableProps {
   tickets: Ticket[];
@@ -16,29 +19,42 @@ export interface TicketTableProps {
 
 export function TicketTable(props: TicketTableProps) {
   const { tickets, customers, ticketStatuses, verticalScroll } = props;
+  const dataSource = transformDataSourceToHaveKey(tickets);
 
   const columns = useMemo(() => {
-    return getColumns(ticketStatuses, customers);
+    return getMainTableColumns(ticketStatuses, customers);
   }, [ticketStatuses, customers]);
 
+  const checkRowExpandable = useCallback((ticket: Ticket) => {
+    return !isNil(ticket.devices);
+  }, []);
+
   return (
-    <Table
-      columns={columns}
-      dataSource={tickets}
-      scroll={{
-        y: verticalScroll ?? 100000000,
-        x: 'max-content',
-      }}
-      bordered
-    />
+    <ExpandableTableContainerStyled>
+      <Table
+        columns={columns}
+        dataSource={dataSource}
+        scroll={{
+          y: verticalScroll ?? 100000000,
+          x: 'max-content',
+        }}
+        expandable={{
+          rowExpandable: checkRowExpandable,
+          expandedRowRender: expandedRowRender,
+          expandRowByClick: true,
+        }}
+        bordered
+      />
+    </ExpandableTableContainerStyled>
   );
 }
 
-function getColumns(ticketStatuses: TicketStatuses[], customers: Customer[]) {
+function getMainTableColumns(ticketStatuses: TicketStatuses[], customers: Customer[]) {
   const columns: ColumnsType<Ticket> = [
     {
       title: 'Ticket ID',
       dataIndex: 'id',
+      key: 'id',
       fixed: 'left',
       render: (value: string) => {
         return {
@@ -58,6 +74,7 @@ function getColumns(ticketStatuses: TicketStatuses[], customers: Customer[]) {
     {
       title: 'Dropped off At',
       dataIndex: 'dropped_off_at',
+      key: 'dropped_off_at',
       width: 180,
       render: (droppedOffAt: string) => {
         if (isNil(droppedOffAt)) {
@@ -75,6 +92,7 @@ function getColumns(ticketStatuses: TicketStatuses[], customers: Customer[]) {
     {
       title: 'Pick up At',
       dataIndex: 'pick_up_at',
+      key: 'pick_up_at',
       width: 180,
       render: (pickUpAt: string) => {
         if (isNil(pickUpAt)) {
@@ -92,6 +110,7 @@ function getColumns(ticketStatuses: TicketStatuses[], customers: Customer[]) {
     {
       title: 'Opened At',
       dataIndex: 'created_at',
+      key: 'created_at',
       width: 180,
       render: (createdAt: string) => {
         const [date, time] = createdAt.replaceAll('Z', '').split('T');
@@ -106,21 +125,10 @@ function getColumns(ticketStatuses: TicketStatuses[], customers: Customer[]) {
     {
       title: 'Status',
       dataIndex: 'status',
+      key: 'status',
       width: 150,
       render: (status: number) => {
         return getCurrentStatusName(ticketStatuses, status);
-      },
-    },
-    {
-      title: 'Is Device Power On',
-      dataIndex: 'is_device_power_on',
-      width: 150,
-      render: (isDevicePowerOn) => {
-        if (isDevicePowerOn) {
-          return 'True';
-        }
-
-        return 'False';
       },
     },
     {
@@ -138,27 +146,6 @@ function getColumns(ticketStatuses: TicketStatuses[], customers: Customer[]) {
       render: (phoneNumber: string) => {
         return transformPhoneNumberToDisplay(phoneNumber);
       },
-    },
-    {
-      title: 'Service',
-      dataIndex: 'service',
-      width: 150,
-      // render: (service: Service) => {
-      //   return serviceMapping[service];
-      // },
-    },
-    {
-      title: 'Service Type',
-      dataIndex: 'service_id',
-      width: 150,
-      render: (service: Service) => {
-        return serviceMapping[service];
-      },
-    },
-    {
-      title: 'Device Model',
-      dataIndex: 'device_model',
-      width: 150,
     },
     {
       title: 'Grand Total',
@@ -212,4 +199,63 @@ function getCustomerName(customerId: string, customers: Customer[]) {
   }
 
   return currentCustomer.first_name + ' ' + currentCustomer.last_name;
+}
+
+function getExpandableTableColumns() {
+  const colums: ColumnsType<TicketDevice> = [
+    {
+      title: 'Device Model',
+      dataIndex: 'device_model',
+      width: 150,
+    },
+    {
+      title: 'Service',
+      dataIndex: 'service',
+      width: 150,
+    },
+    {
+      title: 'Is Device Power On',
+      dataIndex: 'is_device_power_on',
+      width: 165,
+      render: (isDevicePowerOn) => {
+        if (isDevicePowerOn) {
+          return 'True';
+        }
+
+        return 'False';
+      },
+    },
+
+    {
+      title: 'IMEI',
+      dataIndex: 'imei',
+      width: 150,
+    },
+  ];
+
+  return colums;
+}
+
+function expandedRowRender(record: Ticket, index: number, indent: number, expanded: boolean) {
+  const columns = getExpandableTableColumns();
+
+  if (!record.devices?.length || !expanded) {
+    return undefined;
+  }
+
+  const dataSource = transformDataSourceToHaveKey(record.devices);
+
+  return (
+    <Table
+      key={index}
+      rowKey={index.toString()}
+      columns={columns}
+      dataSource={dataSource}
+      pagination={false}
+      scroll={{
+        x: 'max-content',
+      }}
+      bordered
+    />
+  );
 }

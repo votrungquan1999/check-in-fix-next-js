@@ -1,3 +1,3 @@
-export function transformDataForSelection<T extends { id: string }>(arr: T[]): (T & { key: string })[] {
-  return arr.map((data) => ({ ...data, key: data.id }));
+export function transformDataSourceToHaveKey<T extends {}>(arr: T[]): (T & { key: string })[] {
+  return arr.map((data, index) => ({ ...data, key: index.toString() }));
 }

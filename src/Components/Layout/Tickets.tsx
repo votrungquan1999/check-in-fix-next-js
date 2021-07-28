@@ -9,7 +9,7 @@ import {
   TicketStatusesType,
 } from '../../services/tickets';
 import { filter, find, flow, isNil, uniq } from 'lodash/fp';
-import { TicketTable } from '../TicketTable';
+import { TicketTable } from '../TicketTable/TicketTable';
 import { Customer, getCustomersByIDs } from '../../services/customers';
 import { MainContainerLoadingStyled } from '../../styles/commons';
 import { Button, Tabs, Tooltip } from 'antd';
