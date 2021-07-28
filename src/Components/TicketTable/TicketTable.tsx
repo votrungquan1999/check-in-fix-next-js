@@ -8,6 +8,7 @@ import { Customer } from '../../services/customers';
 import { Service, serviceMapping, Ticket, TicketDevice, TicketStatuses } from '../../services/tickets';
 import { transformPhoneNumberToDisplay } from '../../utils/phoneNumber';
 import { transformDataSourceToHaveKey } from '../../utils/table';
+import { convertFromISOTo12Hour } from '../../utils/time';
 import { ExpandableTableContainerStyled } from './styles';
 
 export interface TicketTableProps {
@@ -41,7 +42,6 @@ export function TicketTable(props: TicketTableProps) {
         expandable={{
           rowExpandable: checkRowExpandable,
           expandedRowRender: expandedRowRender,
-          expandRowByClick: true,
         }}
         bordered
       />
@@ -75,15 +75,9 @@ function getMainTableColumns(ticketStatuses: TicketStatuses[], customers: Custom
       title: 'Dropped off At',
       dataIndex: 'dropped_off_at',
       key: 'dropped_off_at',
-      width: 180,
-      render: (droppedOffAt: string) => {
-        if (isNil(droppedOffAt)) {
-          return droppedOffAt;
-        }
-        const [date, time] = droppedOffAt.replaceAll('Z', '').split('T');
-        const formatedTime = time.slice(0, 8);
-
-        return date + ' ' + formatedTime;
+      width: 200,
+      render: (droppedOffAt?: string) => {
+        return convertFromISOTo12Hour(droppedOffAt);
       },
       sorter: (a, b) => (a.created_at > b.created_at ? 1 : -1),
       defaultSortOrder: 'descend',
@@ -93,15 +87,9 @@ function getMainTableColumns(ticketStatuses: TicketStatuses[], customers: Custom
       title: 'Pick up At',
       dataIndex: 'pick_up_at',
       key: 'pick_up_at',
-      width: 180,
-      render: (pickUpAt: string) => {
-        if (isNil(pickUpAt)) {
-          return pickUpAt;
-        }
-        const [date, time] = pickUpAt.replaceAll('Z', '').split('T');
-        const formatedTime = time.slice(0, 8);
-
-        return date + ' ' + formatedTime;
+      width: 200,
+      render: (pickUpAt?: string) => {
+        return convertFromISOTo12Hour(pickUpAt);
       },
       sorter: (a, b) => (a.created_at > b.created_at ? 1 : -1),
       defaultSortOrder: 'descend',
@@ -111,12 +99,9 @@ function getMainTableColumns(ticketStatuses: TicketStatuses[], customers: Custom
       title: 'Opened At',
       dataIndex: 'created_at',
       key: 'created_at',
-      width: 180,
-      render: (createdAt: string) => {
-        const [date, time] = createdAt.replaceAll('Z', '').split('T');
-        const formatedTime = time.slice(0, 8);
-
-        return date + ' ' + formatedTime;
+      width: 200,
+      render: (createdAt?: string) => {
+        return convertFromISOTo12Hour(createdAt);
       },
       sorter: (a, b) => (a.created_at > b.created_at ? 1 : -1),
       defaultSortOrder: 'descend',
