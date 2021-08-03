@@ -1,12 +1,12 @@
 import { FileAddOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Modal, Select } from 'antd';
-import { FormInstance, useForm } from 'antd/lib/form/Form';
+import { Button, Modal, Select } from 'antd';
+import { useForm } from 'antd/lib/form/Form';
 import axios from 'axios';
 import { get, isNil } from 'lodash/fp';
 import React, { useCallback, useMemo, useState } from 'react';
 import { WithAuthProps } from '../firebase/withAuth';
-import { Customer, getCustomerDetailByID, searchCustomers } from '../services/customers';
-import { CustomResult } from '../styles/commons';
+import { Customer, searchCustomers } from '../services/customers';
+import { Ticket } from '../services/tickets';
 import { useContinuousRequest } from '../utils/asyncReq';
 import { transformPhoneNumberToDisplay } from '../utils/phoneNumber';
 import { CreateCustomerModal } from './CreateCustomerModal/CreateCustomerModal';
@@ -98,12 +98,12 @@ export function CreateTicketModal(props: CreateTicketModalProps) {
 
   const footer = useMemo(() => {
     const OkButton = customerID ? (
-      <Button onClick={handleOK} type="primary" disabled={!createdSuccessfully}>
+      <Button onClick={handleOK} type="primary">
         {okButtonText}
       </Button>
     ) : undefined;
 
-    const CancelButton = (
+    const CancelButton = createdSuccessfully ? undefined : (
       <Button onClick={handleCancel} disabled={createdSuccessfully}>
         {cancelButtonText}
       </Button>
@@ -208,13 +208,12 @@ interface CreateTicketModalContentProps extends WithAuthProps {
 function CreateTicketFormContent(props: CreateTicketModalContentProps) {
   const { customerID, employee, user, createdSuccessfully, setCreatedSuccessfully } = props;
 
-  const handleCreateTicketSuccessfully = useCallback(() => {
-    setCreatedSuccessfully(true);
-  }, [setCreatedSuccessfully]);
-
-  if (createdSuccessfully) {
-    return <CustomResult status="success" title="Create Ticket Successfully" />;
-  }
+  const handleCreateTicketSuccessfully = useCallback(
+    (ticket: Ticket) => {
+      setCreatedSuccessfully(true);
+    },
+    [setCreatedSuccessfully],
+  );
 
   return (
     <CreateTicketForm

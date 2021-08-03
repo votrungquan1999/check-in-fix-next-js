@@ -84,6 +84,7 @@ export async function createTicket(input: CreateTicketInput, token: string) {
 
     if (resp.status !== 201 && resp.data.error) {
       alert(`create ticket failed due to ${resp.data.error.message}`);
+      return;
     }
 
     return resp.data.data;
@@ -110,6 +111,7 @@ export async function getTicketsBySubcriberID(subscriberID: string, token: strin
 
     if (resp.status !== 200 && resp.data.error) {
       alert(`get tickets failed due to ${resp.data.error.message}`);
+      return [];
     }
 
     return resp.data.data;
@@ -133,6 +135,7 @@ export async function getTicketsByCustomerID(customerID: string, token: string) 
 
     if (resp.status !== 200 && resp.data.error) {
       alert(`get tickets failed due to ${resp.data.error.message}`);
+      return [];
     }
 
     return resp.data.data;
@@ -160,6 +163,7 @@ export async function getTicketStatusesBySubscriberID(subscriberID: string, toke
 
     if (resp.status !== 200 && resp.data.error) {
       alert(`get subscriber's ticket statuses failed due to ${resp.data.error.message}`);
+      return [];
     }
 
     return resp.data.data;
@@ -167,5 +171,30 @@ export async function getTicketStatusesBySubscriberID(subscriberID: string, toke
     console.log(error);
     alert('internal server error, please contact tech support for help');
     return [];
+  }
+}
+
+export async function getTicketDetail(ticketID: string, token: string) {
+  const baseBEURL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+  try {
+    const resp = await axios.get<CommonResponse<Ticket>>(`${baseBEURL}/private/tickets/${ticketID}`, {
+      headers: {
+        authorization: token,
+      },
+      responseType: 'json',
+      validateStatus: (status) => status < 500,
+    });
+
+    if (resp.status !== 200 && resp.data.error) {
+      alert(`get ticket detail failed due to ${resp.data.error.message}`);
+      return;
+    }
+
+    return resp.data.data;
+  } catch (error) {
+    console.log(error);
+    alert('internal server error, please contact tech support for help');
+    return;
   }
 }

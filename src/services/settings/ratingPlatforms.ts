@@ -21,13 +21,14 @@ export async function getRatingPlatformByReviewID(reviewID: string) {
 
     if (resp.status !== 200) {
       alert(`get rating platforms error, due to ${resp.data.error?.message}`);
-      return;
+      return [];
     }
 
     return resp.data.data;
   } catch (error) {
     console.log(error.message);
     alert(`get rating platforms error, please contact tech support for help`);
+    return [];
   }
 }
 
@@ -46,12 +47,13 @@ export async function getRatingPlatformsBySubscriberID(subscriberID: string, tok
 
     if (resp.status !== 200) {
       alert(`get rating platforms error, due to ${resp.data.error?.message}`);
-      return;
+      return [];
     }
 
     return resp.data.data;
   } catch (error) {
     console.log(error.message);
     alert(`get rating platforms error, please contact tech support for help`);
+    return [];
   }
 }

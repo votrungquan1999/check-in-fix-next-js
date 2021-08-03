@@ -114,8 +114,6 @@ export async function getCustomersByIDs(token: string, customerIDs: string[]) {
       return [];
     }
 
-    // console.log(resp.data);
-
     return resp.data.data;
   } catch (error) {
     console.log(error.message);

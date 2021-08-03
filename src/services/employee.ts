@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { CommonResponse } from './common';
 
 export interface Employee {
   id: string;
@@ -10,15 +11,11 @@ export interface Employee {
   scopes: string[];
 }
 
-export interface GetEmployeeInfo {
-  data: Employee;
-}
-
 export async function getEmployeeInfo(token: string | null) {
   const baseBEURL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   try {
-    const resp = await axios.get<GetEmployeeInfo>(`${baseBEURL}/private/auth/employee-info`, {
+    const resp = await axios.get<CommonResponse<Employee>>(`${baseBEURL}/private/auth/employee-info`, {
       headers: {
         authorization: token,
       },
@@ -26,11 +23,14 @@ export async function getEmployeeInfo(token: string | null) {
       validateStatus: (status) => status < 500,
     });
 
+    if (resp.status !== 200) {
+      alert(`get review error, due to ${resp.data.error?.message}`);
+      return;
+    }
+
     return resp.data.data;
   } catch (error) {
     console.log(error.message);
     alert(`get employee info error, please contact tech support for help`);
   }
-
-  return;
 }

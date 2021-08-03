@@ -19,11 +19,13 @@ export async function getSubscriber(subscriberID: string, token: string) {
       validateStatus: (status) => status < 500,
     });
 
+    if (resp.status !== 200 && resp.data.error) {
+      alert(`get subscriber failed due to ${resp.data.error.message}`);
+    }
+
     return resp.data.data;
   } catch (error) {
     console.log(error.message);
     alert(`get subscriber info error, please contact tech support for help`);
   }
-
-  return;
 }
