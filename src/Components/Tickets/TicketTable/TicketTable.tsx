@@ -1,11 +1,12 @@
 import { EllipsisOutlined } from '@ant-design/icons';
 import { Button, Dropdown, Menu, Table, Tooltip } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
-import { find, isNil } from 'lodash/fp';
+import { Dictionary } from 'lodash';
+import { find, indexBy, isNil } from 'lodash/fp';
 import React, { useMemo } from 'react';
 import { useCallback } from 'react';
 import { Customer } from '../../../services/customers';
-import { Service, serviceMapping, Ticket, TicketDevice, TicketStatuses } from '../../../services/tickets';
+import { Ticket, TicketDevice, TicketStatuses } from '../../../services/tickets';
 import { transformPhoneNumberToDisplay } from '../../../utils/phoneNumber';
 import { transformDataSourceToHaveKey } from '../../../utils/table';
 import { convertFromISOTo12Hour } from '../../../utils/time';
@@ -24,8 +25,12 @@ export function TicketTable(props: TicketTableProps) {
   const { tickets, customers, ticketStatuses, verticalScroll, onClickEdit, onClickDelete } = props;
   const dataSource = transformDataSourceToHaveKey(tickets);
 
+  const mapIdCustomer = useMemo(() => {
+    return indexBy<Customer>('id')(customers);
+  }, [customers]);
+
   const columns = useMemo(() => {
-    return getMainTableColumns(ticketStatuses, customers, onClickEdit, onClickDelete);
+    return getMainTableColumns(ticketStatuses, mapIdCustomer, onClickEdit, onClickDelete);
   }, [ticketStatuses, customers]);
 
   const checkRowExpandable = useCallback((ticket: Ticket) => {
@@ -53,7 +58,7 @@ export function TicketTable(props: TicketTableProps) {
 
 function getMainTableColumns(
   ticketStatuses: TicketStatuses[],
-  customers: Customer[],
+  customers: Dictionary<Customer>,
   onClickEdit?: (value: Ticket) => any,
   onClickDelete?: (value: Ticket) => any,
 ) {
@@ -132,10 +137,23 @@ function getMainTableColumns(
       },
     },
     {
-      title: 'Phone Number',
+      title: 'Contact Phone Number',
       dataIndex: ['contact_phone_number'],
-      width: 150,
+      width: 200,
       render: (phoneNumber: string) => {
+        return transformPhoneNumberToDisplay(phoneNumber);
+      },
+    },
+    {
+      title: 'Phone Number',
+      dataIndex: 'customer_id',
+      width: 150,
+      render: (customerId: string) => {
+        const phoneNumber = getCustomerPhoneNumber(customerId, customers);
+        if (isNil(phoneNumber)) {
+          return 'N/A';
+        }
+
         return transformPhoneNumberToDisplay(phoneNumber);
       },
     },
@@ -188,14 +206,20 @@ function getCurrentStatusName(ticketStatuses: TicketStatuses[], status: number) 
   return currentStatus.name;
 }
 
-function getCustomerName(customerId: string, customers: Customer[]) {
-  const currentCustomer = find<Customer>((customer) => customer.id === customerId)(customers);
+function getCustomerName(customerId: string, customers: Dictionary<Customer>) {
+  const currentCustomer = customers[customerId];
 
   if (isNil(currentCustomer)) {
     return 'N/A';
   }
 
   return currentCustomer.first_name + ' ' + currentCustomer.last_name;
+}
+
+function getCustomerPhoneNumber(customerId: string, customers: Dictionary<Customer>) {
+  const currentCustomer = customers[customerId];
+
+  return currentCustomer?.phone_number;
 }
 
 function getExpandableTableColumns() {
