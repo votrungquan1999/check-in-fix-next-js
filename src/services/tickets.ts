@@ -19,6 +19,22 @@ export interface CreateTicketInput {
   paid?: number;
 }
 
+export interface UpdateTicketInput {
+  description?: string;
+  contact_phone_number?: string;
+  sms_notification_enable?: boolean;
+  dropped_off_at?: string;
+  pick_up_at?: string;
+  devices?: {
+    is_device_power_on?: boolean;
+    imei?: string;
+    device_model?: string;
+    service?: string;
+  }[];
+  quote?: number;
+  paid?: number;
+}
+
 export enum TicketStatusesType {
   Pending,
   Completed,
@@ -42,9 +58,6 @@ export interface Ticket {
   id: string;
   customer_id: string;
   subscriber_id: string;
-  service_id: string;
-  imei?: string;
-  device_model?: string;
   description?: string;
   contact_phone_number?: string;
   sms_notification_enable: boolean;
@@ -57,6 +70,9 @@ export interface Ticket {
 
   created_at: string;
   updated_at: string;
+
+  dropped_off_at?: string;
+  pick_up_at?: string;
 
   approved_by?: string;
   technician_notes?: string;
@@ -195,6 +211,56 @@ export async function getTicketDetail(ticketID: string, token: string) {
   } catch (error) {
     console.log(error);
     alert('internal server error, please contact tech support for help');
+    return;
+  }
+}
+
+export async function updateTicket(ticketID: string, updateData: UpdateTicketInput, token: string) {
+  const baseBEURL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+  try {
+    const resp = await axios.patch<CommonResponse<Ticket>>(`${baseBEURL}/private/tickets/${ticketID}`, updateData, {
+      headers: {
+        authorization: token,
+      },
+      responseType: 'json',
+      validateStatus: (status) => status < 500,
+    });
+
+    if (resp.status !== 200 && resp.data.error) {
+      alert(`update ticket failed due to ${resp.data.error.message}`);
+      return;
+    }
+
+    return resp.data.data;
+  } catch (error) {
+    console.log(error);
+    alert('internal server error, can not update ticket, please contact tech support for help');
+    return;
+  }
+}
+
+export async function deleteTicket(ticketID: string, token: string) {
+  const baseBEURL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+  try {
+    const resp = await axios.delete<CommonResponse<Ticket>>(`${baseBEURL}/private/tickets/${ticketID}`, {
+      headers: {
+        authorization: token,
+      },
+      responseType: 'json',
+      validateStatus: (status) => status < 500,
+    });
+
+    if (resp.status !== 200 && resp.data.error) {
+      alert(`delete ticket failed due to ${resp.data.error.message}`);
+      return;
+    }
+
+    return resp.data.data;
+  } catch (error) {
+    console.log(error);
+    alert('internal server error, can not delete ticket, please contact tech support for help');
     return;
   }
 }

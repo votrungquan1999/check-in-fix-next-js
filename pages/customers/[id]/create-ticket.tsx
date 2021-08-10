@@ -1,7 +1,7 @@
 import withAuth from '../../../src/firebase/withAuth';
 import { Ticket } from '../../../src/services/tickets';
 import { useRouter } from 'next/router';
-import { CreateTicketForm } from '../../../src/Components/CreateTicketForm/CreateTicketForm';
+import { CreateTicketForm } from '../../../src/Components/Tickets/TicketForms/CreateTicketForm';
 import React, { useCallback, useEffect, useState } from 'react';
 import { isNil } from 'lodash/fp';
 import { CustomSpinner } from '../../../src/styles/commons';

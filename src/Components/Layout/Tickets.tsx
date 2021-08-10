@@ -9,13 +9,15 @@ import {
   TicketStatusesType,
 } from '../../services/tickets';
 import { filter, find, flow, isNil, uniq } from 'lodash/fp';
-import { TicketTable } from '../TicketTable/TicketTable';
+import { TicketTable } from '../Tickets/TicketTable/TicketTable';
 import { Customer, getCustomersByIDs } from '../../services/customers';
 import { MainContainerLoadingStyled } from '../../styles/commons';
 import { Button, Tabs, Tooltip } from 'antd';
 import { FileAddOutlined } from '@ant-design/icons';
-import { CreateTicketModal } from '../CreateTicketModal';
 import { useCallback } from 'react';
+import { CreateTicketModal } from '../Tickets/TicketModals/CreateTicketModal';
+import { EditTicketModal } from '../Tickets/TicketModals/EditTicketModal';
+import { DeleteTicketModal } from '../Tickets/TicketModals/DeleteTicketModal';
 
 export interface TicketProps extends WithAuthProps {
   subscriber: Subscriber | undefined;
@@ -28,6 +30,8 @@ export function Tickets(props: TicketProps) {
   const [pendingTickets, setPendingTickets] = useState<Ticket[]>();
   const [completedTickets, setCompletedTickets] = useState<Ticket[]>();
   const [createTicketModalVisibility, setCreateTicketModalVisibility] = useState(false);
+  const [editTicket, setEditTicket] = useState<Ticket>();
+  const [deleteTicket, setDeleteTicket] = useState<Ticket>();
 
   const getTicketsAndCustomers = useCallback(async () => {
     const { token } = await user.getIdTokenResult();
@@ -35,14 +39,14 @@ export function Tickets(props: TicketProps) {
 
     const customerIDs = uniq(tickets.map((ticket) => ticket.customer_id));
 
-    const customers = await getCustomersByIDs(token, customerIDs);
+    const customerList = await getCustomersByIDs(token, customerIDs);
 
-    if (customers.length !== customerIDs.length) {
+    if (customerList.length !== customerIDs.length) {
       alert('get customer failed!');
       return;
     }
 
-    setCustomers(customers);
+    setCustomers(customerList);
 
     const subscriberTicketStatuses = await getTicketStatusesBySubscriberID(employee.subscriber_id, token);
     setTicketStatuses(subscriberTicketStatuses);
@@ -53,11 +57,15 @@ export function Tickets(props: TicketProps) {
 
     setPendingTickets(getTicketWithType(subscriberTicketStatuses, tickets, TicketStatusesType.Pending));
     setCompletedTickets(getTicketWithType(subscriberTicketStatuses, tickets, TicketStatusesType.Completed));
-  }, []);
+  }, [user, employee]);
 
   useEffect(() => {
     getTicketsAndCustomers();
-  }, [employee, user]);
+  }, [getTicketsAndCustomers]);
+
+  const handleClickCreateTicket = useCallback(() => {
+    setCreateTicketModalVisibility(true);
+  }, [setCreateTicketModalVisibility]);
 
   const addTicketButton = useMemo(() => {
     return (
@@ -66,7 +74,7 @@ export function Tickets(props: TicketProps) {
         Add New Ticket
       </Button>
     );
-  }, []);
+  }, [handleClickCreateTicket]);
 
   const verticalScroll = useMemo(() => {
     if (typeof window === 'undefined') {
@@ -76,15 +84,46 @@ export function Tickets(props: TicketProps) {
     return window.innerHeight - 271;
   }, [window]);
 
-  const handleClickCreateTicket = useCallback(() => {
-    setCreateTicketModalVisibility(true);
-  }, [setCreateTicketModalVisibility]);
+  const handleFinishCreateTicket = useCallback(
+    (created: boolean) => {
+      if (created) {
+        setCustomers(undefined);
+        getTicketsAndCustomers();
+      }
+      setCreateTicketModalVisibility(false);
+    },
+    [getTicketsAndCustomers],
+  );
 
-  const handleFinishCreateTicket = useCallback(() => {
-    setCreateTicketModalVisibility(false);
-    setCustomers(undefined);
-    getTicketsAndCustomers();
+  const handleClickEditTicket = useCallback((ticket: Ticket) => {
+    setEditTicket(ticket);
   }, []);
+
+  const handleFinishEditTicket = useCallback(
+    (edited: boolean) => {
+      if (edited) {
+        setCustomers(undefined);
+        getTicketsAndCustomers();
+      }
+      setEditTicket(undefined);
+    },
+    [getTicketsAndCustomers],
+  );
+
+  const handleClickDeleteTicket = useCallback((ticket: Ticket) => {
+    setDeleteTicket(ticket);
+  }, []);
+
+  const handleFinishDeleteTicket = useCallback(
+    (deleted: boolean) => {
+      if (deleted) {
+        setCustomers(undefined);
+        getTicketsAndCustomers();
+      }
+      setDeleteTicket(undefined);
+    },
+    [getTicketsAndCustomers],
+  );
 
   return !pendingTickets || !customers || !ticketStatuses || !completedTickets ? (
     <MainContainerLoadingStyled />
@@ -98,6 +137,8 @@ export function Tickets(props: TicketProps) {
               customers={customers}
               ticketStatuses={ticketStatuses}
               verticalScroll={verticalScroll}
+              onClickEdit={handleClickEditTicket}
+              onClickDelete={handleClickDeleteTicket}
             />
           </Tabs.TabPane>
 
@@ -107,6 +148,8 @@ export function Tickets(props: TicketProps) {
               customers={customers}
               ticketStatuses={ticketStatuses}
               verticalScroll={verticalScroll}
+              onClickEdit={handleClickEditTicket}
+              onClickDelete={handleClickDeleteTicket}
             />
           </Tabs.TabPane>
         </Tabs>
@@ -116,6 +159,18 @@ export function Tickets(props: TicketProps) {
         employee={employee}
         user={user}
         handleFinishCreateTicket={handleFinishCreateTicket}
+      />
+      <EditTicketModal
+        editTicket={editTicket}
+        finishEditTicket={handleFinishEditTicket}
+        employee={employee}
+        user={user}
+      />
+      <DeleteTicketModal
+        employee={employee}
+        user={user}
+        ticket={deleteTicket}
+        finishDeleteTicket={handleFinishDeleteTicket}
       />
     </div>
   );

@@ -4,11 +4,11 @@ import { ColumnsType } from 'antd/lib/table';
 import { find, isNil } from 'lodash/fp';
 import React, { useMemo } from 'react';
 import { useCallback } from 'react';
-import { Customer } from '../../services/customers';
-import { Service, serviceMapping, Ticket, TicketDevice, TicketStatuses } from '../../services/tickets';
-import { transformPhoneNumberToDisplay } from '../../utils/phoneNumber';
-import { transformDataSourceToHaveKey } from '../../utils/table';
-import { convertFromISOTo12Hour } from '../../utils/time';
+import { Customer } from '../../../services/customers';
+import { Service, serviceMapping, Ticket, TicketDevice, TicketStatuses } from '../../../services/tickets';
+import { transformPhoneNumberToDisplay } from '../../../utils/phoneNumber';
+import { transformDataSourceToHaveKey } from '../../../utils/table';
+import { convertFromISOTo12Hour } from '../../../utils/time';
 import { ExpandableTableContainerStyled } from './styles';
 
 export interface TicketTableProps {
@@ -16,14 +16,16 @@ export interface TicketTableProps {
   customers: Customer[];
   ticketStatuses: TicketStatuses[];
   verticalScroll?: number;
+  onClickEdit?: (ticket: Ticket) => any;
+  onClickDelete?: (ticket: Ticket) => any;
 }
 
 export function TicketTable(props: TicketTableProps) {
-  const { tickets, customers, ticketStatuses, verticalScroll } = props;
+  const { tickets, customers, ticketStatuses, verticalScroll, onClickEdit, onClickDelete } = props;
   const dataSource = transformDataSourceToHaveKey(tickets);
 
   const columns = useMemo(() => {
-    return getMainTableColumns(ticketStatuses, customers);
+    return getMainTableColumns(ticketStatuses, customers, onClickEdit, onClickDelete);
   }, [ticketStatuses, customers]);
 
   const checkRowExpandable = useCallback((ticket: Ticket) => {
@@ -49,7 +51,12 @@ export function TicketTable(props: TicketTableProps) {
   );
 }
 
-function getMainTableColumns(ticketStatuses: TicketStatuses[], customers: Customer[]) {
+function getMainTableColumns(
+  ticketStatuses: TicketStatuses[],
+  customers: Customer[],
+  onClickEdit?: (value: Ticket) => any,
+  onClickDelete?: (value: Ticket) => any,
+) {
   const columns: ColumnsType<Ticket> = [
     {
       title: 'Ticket ID',
@@ -148,10 +155,15 @@ function getMainTableColumns(ticketStatuses: TicketStatuses[], customers: Custom
       width: 90,
       align: 'center',
       fixed: 'right',
-      render: () => {
+      render: (value: Ticket) => {
         const menu = (
           <Menu>
-            <Menu.Item>item 1</Menu.Item>
+            <Menu.Item onClick={() => onClickEdit && onClickEdit(value)} disabled={!onClickEdit}>
+              Edit
+            </Menu.Item>
+            <Menu.Item onClick={() => onClickDelete && onClickDelete(value)} disabled={!onClickDelete}>
+              Delete
+            </Menu.Item>
           </Menu>
         );
 
