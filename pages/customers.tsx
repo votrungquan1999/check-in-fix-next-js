@@ -44,7 +44,7 @@ function PhoneNumberInputForm({ handleSubmitPhoneNumber }: PhoneNumberInputFormP
       const phoneNumber = form.getFieldsValue()['phone'] ?? '';
       const newPhoneNumber = phoneNumber + value.toString();
 
-      checkPhoneNumberOK(phoneNumber);
+      checkPhoneNumberOK(newPhoneNumber);
 
       form.setFieldsValue({ phone: transformPhoneNumberToDisplay(newPhoneNumber) });
 
@@ -61,7 +61,7 @@ function PhoneNumberInputForm({ handleSubmitPhoneNumber }: PhoneNumberInputFormP
 
     const newPhoneNumber = phoneNumber.substr(0, phoneNumber.length - 1);
 
-    checkPhoneNumberOK(phoneNumber);
+    checkPhoneNumberOK(newPhoneNumber);
 
     form.setFieldsValue({ phone: transformPhoneNumberToDisplay(newPhoneNumber) });
 
