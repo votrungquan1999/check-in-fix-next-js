@@ -3,7 +3,7 @@ import { Button, Typography } from 'antd';
 import Modal from 'antd/lib/modal/Modal';
 import { UploadChangeParam, UploadFile } from 'antd/lib/upload/interface';
 import { isNil } from 'lodash/fp';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, createRef } from 'react';
 import { useCallback } from 'react';
 import { useEffect } from 'react';
 import { getBase64, uploadFiles } from '../../services/file_storage';
@@ -23,6 +23,21 @@ export function UploadFilesForm(props: UploadFilesFormProps) {
   const [previewFile, setPreviewFile] = useState<UploadFile>();
   const [uploading, setUploading] = useState(false);
   const [uploadSuccessfully, setUploadSuccessfully] = useState(false);
+  const [video, setVideo] = useState<MediaStream>();
+  const videoRef = createRef<HTMLVideoElement>();
+
+  useEffect(() => {
+    if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
+      return;
+    }
+
+    navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
+      setVideo(stream);
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    });
+  });
 
   const uploadButton = useMemo(() => {
     return (
@@ -105,6 +120,7 @@ export function UploadFilesForm(props: UploadFilesFormProps) {
       </CustomUploader>
       {submitButton}
       <PreviewModal file={previewFile} onClose={handleClosePreview} />
+      <video ref={videoRef} autoPlay />
     </div>
   );
 }
