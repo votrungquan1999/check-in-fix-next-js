@@ -26,8 +26,12 @@ export function UploadFilesForm(props: UploadFilesFormProps) {
   const [video, setVideo] = useState<MediaStream>();
   const videoRef = createRef<HTMLVideoElement>();
 
-  useEffect(() => {
+  const setMedia = useCallback(() => {
     if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
+      console.log('can not get media');
+      setTimeout(() => {
+        setMedia();
+      }, 1000);
       return;
     }
 
@@ -37,6 +41,10 @@ export function UploadFilesForm(props: UploadFilesFormProps) {
       }
       setVideo(stream);
     });
+  }, []);
+
+  useEffect(() => {
+    setMedia();
   }, []);
 
   const uploadButton = useMemo(() => {
