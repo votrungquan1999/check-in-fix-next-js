@@ -32,12 +32,12 @@ export function UploadFilesForm(props: UploadFilesFormProps) {
     }
 
     navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
-      setVideo(stream);
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
+      setVideo(stream);
     });
-  });
+  }, []);
 
   const uploadButton = useMemo(() => {
     return (
