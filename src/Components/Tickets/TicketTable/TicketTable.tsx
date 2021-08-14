@@ -62,7 +62,7 @@ function getMainTableColumns(
   onClickEdit?: (value: Ticket) => any,
   onClickDelete?: (value: Ticket) => any,
 ) {
-  const columns: ColumnsType<Ticket> = [
+  const columns: ColumnsType<any> = [
     {
       title: 'Ticket ID',
       dataIndex: 'id',
@@ -223,7 +223,7 @@ function getCustomerPhoneNumber(customerId: string, customers: Dictionary<Custom
 }
 
 function getExpandableTableColumns() {
-  const colums: ColumnsType<TicketDevice> = [
+  const colums: ColumnsType<any> = [
     {
       title: 'Device Model',
       dataIndex: 'device_model',
