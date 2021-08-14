@@ -35,13 +35,23 @@ export function UploadFilesForm(props: UploadFilesFormProps) {
       return;
     }
 
-    navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
+    const displayVideo = (stream: MediaStream) => {
+      if (!videoRef.current) {
+        setTimeout(() => {
+          displayVideo(stream);
+        }, 1000);
+
+        return;
       }
+
+      videoRef.current.srcObject = stream;
       setVideo(stream);
+    };
+
+    navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
+      displayVideo(stream);
     });
-  }, []);
+  }, [videoRef]);
 
   useEffect(() => {
     setMedia();
