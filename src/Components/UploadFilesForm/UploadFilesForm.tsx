@@ -48,7 +48,7 @@ export function UploadFilesForm(props: UploadFilesFormProps) {
       setVideo(stream);
     };
 
-    navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'front' } }).then((stream) => {
       displayVideo(stream);
     });
   }, [videoRef]);
