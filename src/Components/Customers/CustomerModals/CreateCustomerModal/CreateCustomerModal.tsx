@@ -3,8 +3,8 @@ import React from 'react';
 import { useMemo } from 'react';
 import { useState } from 'react';
 import { useCallback } from 'react';
-import { WithAuthProps } from '../../firebase/withAuth';
-import { CreateCustomerForm } from '../CreateCustomerForm/CreateCustomerForm';
+import { WithAuthProps } from '../../../../firebase/withAuth';
+import { CreateCustomerForm } from '../../CustomerForms/CreateCustomerForm/CreateCustomerForm';
 
 interface CreateCustomerModalProps extends WithAuthProps {
   isCreateCustomerModalVisible: boolean;

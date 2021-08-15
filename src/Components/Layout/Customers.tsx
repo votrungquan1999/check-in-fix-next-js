@@ -6,9 +6,9 @@ import { WithAuthProps } from '../../firebase/withAuth';
 import { Customer, getCustomers, searchCustomers } from '../../services/customers';
 import { Subscriber } from '../../services/subscribers';
 import { CustomSpinner, MainContainerFullHeightStyled, MainContainerLoadingStyled } from '../../styles/commons';
-import { CreateCustomerModal } from '../CreateCustomerModal/CreateCustomerModal';
+import { CreateCustomerModal } from '../Customers/CustomerModals/CreateCustomerModal/CreateCustomerModal';
 import { CustomerTable } from '../CustomerTable';
-import { DeleteCustomerModal } from '../DeleteCustomersModal';
+import { DeleteCustomerModal } from '../Customers/CustomerModals/DeleteCustomerModal/DeleteCustomersModal';
 import { SearchInput } from '../SearchInput';
 import { SendSMSToCustomerModal } from '../SendSMSModal';
 

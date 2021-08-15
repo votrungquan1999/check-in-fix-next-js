@@ -3,8 +3,8 @@ import { Button } from 'antd';
 import React, { useCallback } from 'react';
 import { useState } from 'react';
 import { WithAuthProps } from '../../firebase/withAuth';
-import { CreateCustomerModal } from '../CreateCustomerModal/CreateCustomerModal';
-import { SearchCustomerForm } from '../SearchCustomerForm/SearchCustomerForm';
+import { CreateCustomerModal } from '../Customers/CustomerModals/CreateCustomerModal/CreateCustomerModal';
+import { SearchCustomerForm } from '../Customers/CustomerForms/SearchCustomerForm/SearchCustomerForm';
 
 interface SearchAndCreateCustomerFormProps extends WithAuthProps {
   setSelectedCustomer?: (customerID: string) => any;

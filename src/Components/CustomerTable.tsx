@@ -7,8 +7,8 @@ import { WithAuthProps } from '../firebase/withAuth';
 import { Customer } from '../services/customers';
 import { transformPhoneNumberToDisplay } from '../utils/phoneNumber';
 import { transformDataSourceToHaveKey } from '../utils/table';
-import { CustomerDetailModal } from './CustomerDetailModal/CustomerDetailModal';
-import { EditCustomerModal } from './EditCustomerModal';
+import { CustomerDetailModal } from './Customers/CustomerModals/CustomerDetailModal/CustomerDetailModal';
+import { EditCustomerModal } from './Customers/CustomerModals/EditCustomerModal/EditCustomerModal';
 import { TableContainerStyled } from './Layout/styles';
 
 interface CustomerTableProps extends WithAuthProps {

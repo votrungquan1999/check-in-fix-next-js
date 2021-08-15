@@ -5,12 +5,12 @@ import { get, isEmpty } from 'lodash/fp';
 import { useRouter } from 'next/router';
 import React, { useCallback } from 'react';
 import { useState } from 'react';
-import { WithAuthProps } from '../../firebase/withAuth';
-import { createCustomer, CreateCustomerInput, Customer } from '../../services/customers';
-import { CustomResult, CustomSpinner } from '../../styles/commons';
+import { WithAuthProps } from '../../../../firebase/withAuth';
+import { createCustomer, CreateCustomerInput, Customer } from '../../../../services/customers';
+import { CustomResult, CustomSpinner } from '../../../../styles/commons';
 import { CreateCustomerFormStyled } from './styles';
-import { trimExtraCharacterPhoneNumber } from '../../utils/phoneNumber';
-import { PhoneNumberInput } from '../input';
+import { trimExtraCharacterPhoneNumber } from '../../../../utils/phoneNumber';
+import { PhoneNumberInput } from '../../../input';
 import { validateCreateCustomerForm } from './enhanced';
 import { useEffect } from 'react';
 

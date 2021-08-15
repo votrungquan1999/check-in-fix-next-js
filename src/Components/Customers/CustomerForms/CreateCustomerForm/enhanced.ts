@@ -1,5 +1,5 @@
 import { get, isNil } from 'lodash/fp';
-import { trimExtraCharacterPhoneNumber, validatePhoneNumber } from '../../utils/phoneNumber';
+import { trimExtraCharacterPhoneNumber, validatePhoneNumber } from '../../../../utils/phoneNumber';
 
 const requiredFields = ['first_name', 'last_name', 'phone_number'] as const;
 

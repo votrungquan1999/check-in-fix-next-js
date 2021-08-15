@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { isArray, isNil } from 'lodash/fp';
 import { CustomSpinner } from '../src/styles/commons';
-import { CreateCustomerForm } from '../src/Components/CreateCustomerForm/CreateCustomerForm';
+import { CreateCustomerForm } from '../src/Components/Customers/CustomerForms/CreateCustomerForm/CreateCustomerForm';
 import { useEffect } from 'react';
 import { useCallback } from 'react';
 

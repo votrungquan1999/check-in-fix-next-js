@@ -1,10 +1,10 @@
 import { Select } from 'antd';
 import axios from 'axios';
 import React, { useState, useCallback, useMemo } from 'react';
-import { WithAuthProps } from '../../firebase/withAuth';
-import { Customer, searchCustomers } from '../../services/customers';
-import { useContinuousRequest } from '../../utils/asyncReq';
-import { transformPhoneNumberToDisplay } from '../../utils/phoneNumber';
+import { WithAuthProps } from '../../../../firebase/withAuth';
+import { Customer, searchCustomers } from '../../../../services/customers';
+import { useContinuousRequest } from '../../../../utils/asyncReq';
+import { transformPhoneNumberToDisplay } from '../../../../utils/phoneNumber';
 
 interface SearchCustomerFormProps extends WithAuthProps {
   setSelectedCustomer?: (customerID: string) => any;

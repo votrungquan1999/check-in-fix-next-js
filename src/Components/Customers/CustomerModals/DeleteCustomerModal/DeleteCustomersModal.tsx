@@ -3,8 +3,8 @@ import React from 'react';
 import { useMemo } from 'react';
 import { useState } from 'react';
 import { useCallback } from 'react';
-import { WithAuthProps } from '../firebase/withAuth';
-import { Customer, deleteCustomersByIDs } from '../services/customers';
+import { WithAuthProps } from '../../../../firebase/withAuth';
+import { Customer, deleteCustomersByIDs } from '../../../../services/customers';
 
 interface DeleteCustomerModalProps extends WithAuthProps {
   toBeDeletedCustomers: Customer[];

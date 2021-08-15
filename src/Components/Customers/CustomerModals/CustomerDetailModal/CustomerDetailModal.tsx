@@ -1,20 +1,20 @@
 import { Button, Dropdown, Menu, Modal } from 'antd';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import firebase from 'firebase';
-import { Customer, getCustomerDetailByID } from '../../services/customers';
+import { Customer, getCustomerDetailByID } from '../../../../services/customers';
 import {
   getTicketsByCustomerID,
   getTicketStatusesBySubscriberID,
   Ticket,
   TicketStatuses,
-} from '../../services/tickets';
-import { CustomSpinner } from '../../styles/commons';
-import { TicketTable } from '../Tickets/TicketTable/TicketTable';
-import { DetailTable } from '../DetailTable';
-import { EditCustomerModal } from '../EditCustomerModal';
+} from '../../../../services/tickets';
+import { CustomSpinner } from '../../../../styles/commons';
+import { TicketTable } from '../../../Tickets/TicketTable/TicketTable';
+import { DetailTable } from '../../../DetailTable';
+import { EditCustomerModal } from '../EditCustomerModal/EditCustomerModal';
 import { DownOutlined } from '@ant-design/icons';
-import { transformPhoneNumberToDisplay } from '../../utils/phoneNumber';
-import { WithAuthProps } from '../../firebase/withAuth';
+import { transformPhoneNumberToDisplay } from '../../../../utils/phoneNumber';
+import { WithAuthProps } from '../../../../firebase/withAuth';
 import { isNil } from 'lodash/fp';
 
 interface CustomerDetailModalProps extends WithAuthProps {
