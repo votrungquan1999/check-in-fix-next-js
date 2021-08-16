@@ -3,12 +3,12 @@ import React from 'react';
 import { useMemo } from 'react';
 import { useState } from 'react';
 import { useCallback } from 'react';
-import { WithAuthProps } from '../../../../firebase/withAuth';
-import { Customer, deleteCustomersByIDs } from '../../../../services/customers';
+import { WithAuthProps } from '../../../firebase/withAuth';
+import { Customer, deleteCustomersByIDs } from '../../../services/customers';
 
 interface DeleteCustomerModalProps extends WithAuthProps {
   toBeDeletedCustomers: Customer[];
-  finishDeleteCustomers: () => any;
+  finishDeleteCustomers: (deleted?: boolean) => any;
 }
 
 export function DeleteCustomerModal(props: DeleteCustomerModalProps) {
@@ -18,11 +18,12 @@ export function DeleteCustomerModal(props: DeleteCustomerModalProps) {
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const resetModal = useCallback(() => {
-    setStage(0);
-    setDeleting(false);
-    setConfirmDelete(false);
-    finishDeleteCustomers();
+    finishDeleteCustomers(false);
   }, [finishDeleteCustomers]);
+
+  const handleDeleteSuccessfully = useCallback(() => {
+    finishDeleteCustomers(true);
+  }, []);
 
   const mapStageContent = useMemo(() => {
     return {
@@ -36,6 +37,10 @@ export function DeleteCustomerModal(props: DeleteCustomerModalProps) {
   }, [toBeDeletedCustomers, setConfirmDelete]);
 
   const handleDeleteCustomers = useCallback(async () => {
+    if (!confirmDelete) {
+      return;
+    }
+
     setDeleting(true);
     if (!toBeDeletedCustomers.length) {
       setDeleting(false);
@@ -46,11 +51,11 @@ export function DeleteCustomerModal(props: DeleteCustomerModalProps) {
 
     const deletedCustomers = await deleteCustomersByIDs(customerIDs, token);
     if (deletedCustomers) {
-      resetModal();
+      handleDeleteSuccessfully();
     }
 
     setDeleting(false);
-  }, [toBeDeletedCustomers, user, resetModal]);
+  }, [toBeDeletedCustomers, user, handleDeleteSuccessfully, confirmDelete]);
 
   const handleOK = useCallback(async () => {
     if (stage === 0) {
@@ -69,6 +74,7 @@ export function DeleteCustomerModal(props: DeleteCustomerModalProps) {
       okButtonProps={{ disabled: stage === 1 && !confirmDelete }}
       onCancel={resetModal}
       confirmLoading={deleting}
+      destroyOnClose
     >
       {mapStageContent[stage]}
     </Modal>

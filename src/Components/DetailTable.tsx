@@ -20,7 +20,8 @@ export function DetailTable(props: DetailTableProps) {
   ];
 
   const displayData = useMemo(() => {
-    return fields.map((field) => ({
+    return fields.map((field, index) => ({
+      key: index,
       field: field,
       value: data[field],
     }));

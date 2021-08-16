@@ -1,16 +1,18 @@
 import { DownOutlined } from '@ant-design/icons';
-import { Menu, Dropdown, Button, Typography } from 'antd';
+import { Menu, Dropdown, Button, Typography, message } from 'antd';
 import { find, get } from 'lodash/fp';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { WithAuthProps } from '../../firebase/withAuth';
 import { Customer, getCustomers, searchCustomers } from '../../services/customers';
 import { Subscriber } from '../../services/subscribers';
 import { CustomSpinner, MainContainerFullHeightStyled, MainContainerLoadingStyled } from '../../styles/commons';
-import { CreateCustomerModal } from '../Customers/CustomerModals/CreateCustomerModal/CreateCustomerModal';
-import { CustomerTable } from '../CustomerTable';
-import { DeleteCustomerModal } from '../Customers/CustomerModals/DeleteCustomerModal/DeleteCustomersModal';
+import { CreateCustomerModal } from '../Customers/CustomerModals/CreateCustomerModal';
+import { CustomerTable } from '../Customers/CustomerTables/CustomerTable';
+import { DeleteCustomerModal } from '../Customers/CustomerModals/DeleteCustomersModal';
 import { SearchInput } from '../SearchInput';
 import { SendSMSToCustomerModal } from '../SendSMSModal';
+import { EditCustomerModal } from '../Customers/CustomerModals/EditCustomerModal';
+import { CustomerDetailModal } from '../Customers/CustomerModals/CustomerDetailModal';
 
 export interface CustomerProps extends WithAuthProps {
   subscriber: Subscriber | undefined;
@@ -22,6 +24,8 @@ export function Customers(props: WithAuthProps) {
   const [sendMessageModalVisibility, setSendMessageModalVisibility] = useState<boolean>(false);
   const [selectedCustomers, setSelectedCustomers] = useState<Customer[]>([]);
   const [toBeDeletedCustomers, setToBeDeletedCustomers] = useState<Customer[]>([]);
+  const [toBeEditedCustomer, setToBeEditedCustomer] = useState<Customer>();
+  const [detailCustomer, setDetailCustomer] = useState<Customer>();
   const [loading, setLoading] = useState(false);
   const [isCreateCustomerModalVisible, setIsCreateCustomerModalVisible] = useState(false);
 
@@ -31,7 +35,7 @@ export function Customers(props: WithAuthProps) {
     if (customerList !== undefined) {
       setCustomers(customerList);
     }
-  }, [user, setCustomers]);
+  }, [user]);
 
   useEffect(() => {
     getAndSetCustomers();
@@ -125,19 +129,64 @@ export function Customers(props: WithAuthProps) {
     [customers, setSelectedCustomers],
   );
 
-  const handleFinishDeleteCustomers = useCallback(async () => {
-    setToBeDeletedCustomers([]);
+  const handleFinishDeleteCustomers = useCallback(
+    async (deleted: boolean = false) => {
+      setToBeDeletedCustomers([]);
 
-    setLoading(true);
-    await getAndSetCustomers();
-    setLoading(false);
-  }, [setToBeDeletedCustomers, setCustomers, setLoading]);
+      if (deleted) {
+        setLoading(true);
+        await getAndSetCustomers();
+        setLoading(false);
+      }
+    },
+    [setToBeDeletedCustomers, setCustomers, setLoading],
+  );
 
-  const handleFinishCreateCustomer = useCallback(async () => {
-    setIsCreateCustomerModalVisible(false);
-    setLoading(true);
-    await getAndSetCustomers();
-    setLoading(false);
+  const handleFinishCreateCustomer = useCallback(
+    async (createSuccessfully: boolean = false) => {
+      setIsCreateCustomerModalVisible(false);
+      if (createSuccessfully) {
+        message.success('create customer successfully');
+        setLoading(true);
+        await getAndSetCustomers();
+        setLoading(false);
+      }
+    },
+    [getAndSetCustomers],
+  );
+
+  const handleFisnishEditCustomer = useCallback(
+    async (updatedSuccessfully: boolean = false) => {
+      setToBeEditedCustomer(undefined);
+      if (updatedSuccessfully) {
+        message.success('update customer successfully');
+        setLoading(true);
+        await getAndSetCustomers();
+        setLoading(false);
+      }
+    },
+    [getAndSetCustomers],
+  );
+
+  const handleCloseCustomerDetail = useCallback(async (isCustomerUpdated: boolean) => {
+    setDetailCustomer(undefined);
+    if (isCustomerUpdated) {
+      setLoading(true);
+      await getAndSetCustomers();
+      setLoading(false);
+    }
+  }, []);
+
+  const handleClickDeleteCustomer = useCallback((customer: Customer) => {
+    setToBeDeletedCustomers([customer]);
+  }, []);
+
+  const handleClickEditCustomer = useCallback((customer: Customer) => {
+    setToBeEditedCustomer(customer);
+  }, []);
+
+  const handleClickDetailCustomer = useCallback((customer: Customer) => {
+    setDetailCustomer(customer);
   }, []);
 
   return !customers ? (
@@ -158,11 +207,13 @@ export function Customers(props: WithAuthProps) {
         ) : (
           <CustomerTable
             customers={customers}
-            employee={employee}
-            user={user}
+            // employee={employee}
+            // user={user}
+            onClickDetailCustomer={handleClickDetailCustomer}
             setSelectedRows={handleRowsSelected}
             height={window.innerHeight - 271}
-            setToBeDeletedCustomers={setToBeDeletedCustomers}
+            onClickDelete={handleClickDeleteCustomer}
+            onClickEdit={handleClickEditCustomer}
           />
         )}
 
@@ -185,6 +236,20 @@ export function Customers(props: WithAuthProps) {
           user={user}
           finishCreateCustomer={handleFinishCreateCustomer}
           isCreateCustomerModalVisible={isCreateCustomerModalVisible}
+        />
+
+        <EditCustomerModal
+          employee={employee}
+          user={user}
+          customer={toBeEditedCustomer}
+          finishUpdateCustomer={handleFisnishEditCustomer}
+        />
+
+        <CustomerDetailModal
+          employee={employee}
+          user={user}
+          customerID={detailCustomer?.id}
+          onCloseDetailModal={handleCloseCustomerDetail}
         />
       </div>
     </div>

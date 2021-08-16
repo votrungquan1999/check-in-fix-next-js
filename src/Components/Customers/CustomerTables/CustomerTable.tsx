@@ -3,25 +3,27 @@ import { Button, Dropdown, Menu, Table, Tooltip } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import { TableRowSelection } from 'antd/lib/table/interface';
 import React, { useCallback, useMemo, useState } from 'react';
-import { WithAuthProps } from '../firebase/withAuth';
-import { Customer } from '../services/customers';
-import { transformPhoneNumberToDisplay } from '../utils/phoneNumber';
-import { transformDataSourceToHaveKey } from '../utils/table';
-import { CustomerDetailModal } from './Customers/CustomerModals/CustomerDetailModal/CustomerDetailModal';
-import { EditCustomerModal } from './Customers/CustomerModals/EditCustomerModal/EditCustomerModal';
-import { TableContainerStyled } from './Layout/styles';
+import { WithAuthProps } from '../../../firebase/withAuth';
+import { Customer } from '../../../services/customers';
+import { transformPhoneNumberToDisplay } from '../../../utils/phoneNumber';
+import { transformDataSourceToHaveKey } from '../../../utils/table';
+import { CustomerDetailModal } from '../CustomerModals/CustomerDetailModal';
+import { EditCustomerModal } from '../CustomerModals/EditCustomerModal';
+import { TableContainerStyled } from '../../Layout/styles';
 
-interface CustomerTableProps extends WithAuthProps {
+interface CustomerTableProps {
   customers: Customer[];
   setSelectedRows?: (rows: string[]) => any;
-  setToBeDeletedCustomers: React.Dispatch<React.SetStateAction<Customer[]>>;
+  onClickDelete: (customer: Customer) => any;
+  onClickEdit: (customer: Customer) => any;
+  onClickDetailCustomer: (customer: Customer) => any;
   height?: number;
 }
 
 export function CustomerTable(props: CustomerTableProps) {
-  const { customers, user, employee, setSelectedRows, height, setToBeDeletedCustomers } = props;
-  const [detailCustomerID, setDetailCustomerID] = useState<string>();
-  const [editCustomer, setEditCustomer] = useState<Customer>();
+  const { customers, setSelectedRows, height, onClickDelete, onClickEdit, onClickDetailCustomer } = props;
+  // const [detailCustomerID, setDetailCustomerID] = useState<string>();
+  // const [editCustomer, setEditCustomer] = useState<Customer>();
 
   const rowSelection = useMemo<TableRowSelection<any>>(() => {
     if (!setSelectedRows) {
@@ -47,16 +49,16 @@ export function CustomerTable(props: CustomerTableProps) {
   }, [customers]);
 
   const columns = useMemo(() => {
-    return getColumns(setEditCustomer, setDetailCustomerID, setToBeDeletedCustomers);
-  }, [setEditCustomer, setDetailCustomerID, setToBeDeletedCustomers]);
+    return getColumns(onClickEdit, onClickDetailCustomer, onClickDelete);
+  }, [onClickEdit, onClickDetailCustomer, onClickDelete]);
 
-  const handleFinishUpdateCustomer = useCallback(() => {
-    setEditCustomer(undefined);
-  }, [setEditCustomer]);
+  // const handleFinishUpdateCustomer = useCallback(() => {
+  //   setEditCustomer(undefined);
+  // }, [setEditCustomer]);
 
-  const handleFinishDeleteCustomers = useCallback(() => {
-    setToBeDeletedCustomers([]);
-  }, [setToBeDeletedCustomers]);
+  // const handleFinishDeleteCustomers = useCallback(() => {
+  //   onClickDelete([]);
+  // }, [onClickDelete]);
 
   return (
     <div>
@@ -74,23 +76,28 @@ export function CustomerTable(props: CustomerTableProps) {
         />
       </TableContainerStyled>
 
-      <CustomerDetailModal
+      {/* <CustomerDetailModal
         customerID={detailCustomerID}
         subscriberID={employee.subscriber_id}
         user={user}
         setDetailCustomerID={setDetailCustomerID}
         employee={employee}
-      />
+      /> */}
 
-      <EditCustomerModal finishUpdateCustomer={handleFinishUpdateCustomer} customer={editCustomer} user={user} />
+      {/* <EditCustomerModal
+        finishUpdateCustomer={handleFinishUpdateCustomer}
+        customer={editCustomer}
+        user={user}
+        employee={employee}
+      /> */}
     </div>
   );
 }
 
 function getColumns(
-  setEditCustomer: React.Dispatch<React.SetStateAction<Customer | undefined>>,
-  setDetailCustomerID: React.Dispatch<React.SetStateAction<string | undefined>>,
-  setToBeDeletedCustomers: React.Dispatch<React.SetStateAction<Customer[]>>,
+  onClickEdit: (customer: Customer) => any,
+  onClickRow: (customer: Customer) => any,
+  onClickDelete: (customer: Customer) => any,
 ) {
   const columns: ColumnsType<any> = [
     {
@@ -120,7 +127,7 @@ function getColumns(
       },
       onCell: (record: Customer) => {
         return {
-          onClick: () => setDetailCustomerID(record.id),
+          onClick: () => onClickRow(record),
         };
       },
       ellipsis: true,
@@ -131,7 +138,7 @@ function getColumns(
       width: 300,
       onCell: (record: Customer) => {
         return {
-          onClick: () => setDetailCustomerID(record.id),
+          onClick: () => onClickRow(record),
         };
       },
     },
@@ -144,7 +151,7 @@ function getColumns(
       },
       onCell: (record: Customer) => {
         return {
-          onClick: () => setDetailCustomerID(record.id),
+          onClick: () => onClickRow(record),
         };
       },
     },
@@ -152,7 +159,7 @@ function getColumns(
       title: 'Actions',
       width: 90,
       render: (value: Customer) => {
-        return renderActions(value, setEditCustomer, setToBeDeletedCustomers);
+        return renderActions(value, onClickEdit, onClickDelete);
       },
       fixed: 'right',
       align: 'center',
@@ -164,21 +171,21 @@ function getColumns(
 
 function renderActions(
   value: Customer,
-  setEditCustomer: React.Dispatch<React.SetStateAction<Customer | undefined>>,
-  setToBeDeletedCustomers: React.Dispatch<React.SetStateAction<Customer[]>>,
+  onClickEdit: (customer: Customer) => any,
+  onClickDelete: (customer: Customer) => any,
 ) {
   const overlayMenu = (
     <Menu>
       <Menu.Item
         onClick={() => {
-          setEditCustomer(value);
+          onClickEdit(value);
         }}
       >
         Edit
       </Menu.Item>
       <Menu.Item
         onClick={() => {
-          setToBeDeletedCustomers([value]);
+          onClickDelete(value);
         }}
       >
         Delete

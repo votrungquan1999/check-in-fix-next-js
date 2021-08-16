@@ -1,3 +1,3 @@
-import { FieldData } from 'rc-field-form/lib/interface';
+export type { FieldData } from 'rc-field-form/lib/interface';
 
-export type FormFieldData = FieldData;
+// export FieldData;

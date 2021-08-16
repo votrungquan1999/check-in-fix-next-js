@@ -3,7 +3,7 @@ import React from 'react';
 import { WithAuthProps } from '../../../firebase/withAuth';
 import { Ticket } from '../../../services/tickets';
 import { CreateTicketForm } from '../TicketForms/CreateTicketForm';
-import { SearchAndCreateCustomerForm } from '../../SearchAndCreateCustomer/SearchAndCreateCustomerForm';
+import { SearchAndCreateCustomerForm } from '../../Customers/CustomerForms/SearchAndCreateCustomerForm';
 import { TicketUploadFilesView } from '../TicketUploadFilesView/TicketUploadFilesView';
 
 interface CreateTicketFlowProps extends WithAuthProps {

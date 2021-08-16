@@ -166,7 +166,7 @@ export async function updateCustomer(id: string, updateCustomerInput: Partial<Cu
   const updateInput = omitBy(isUndefined)(updateCustomerInput);
 
   try {
-    const resp = await axios.patch<CommonResponse<Customer>>(`${baseBEURL}/private/customers/${id}`, updateInput, {
+    const resp = await axios.patch<CommonResponse<Customer[]>>(`${baseBEURL}/private/customers/${id}`, updateInput, {
       headers: {
         authorization: token,
       },
