@@ -4,11 +4,12 @@ import { useMemo } from 'react';
 import { useState } from 'react';
 import { useCallback } from 'react';
 import { WithAuthProps } from '../../../firebase/withAuth';
+import { Customer } from '../../../services/customers';
 import { CreateCustomerForm } from '../CustomerForms/CreateCustomerForm';
 
 interface CreateCustomerModalProps extends WithAuthProps {
   isCreateCustomerModalVisible: boolean;
-  finishCreateCustomer: (createSuccessfully?: boolean) => any;
+  finishCreateCustomer: (createSuccessfully?: boolean, createdCustomer?: Customer) => any;
 }
 
 export function CreateCustomerModal(props: CreateCustomerModalProps) {
@@ -22,12 +23,15 @@ export function CreateCustomerModal(props: CreateCustomerModalProps) {
     // setTriggerResetForm(!triggerResetForm);
   }, [finishCreateCustomer]);
 
-  const handleCreateCustomerSuccessfully = useCallback(() => {
-    // setCreatedCustomerSuccessfully(true);
-    // finishCreateCustomer;
+  const handleCreateCustomerSuccessfully = useCallback(
+    (createdCustomer: Customer) => {
+      // setCreatedCustomerSuccessfully(true);
+      // finishCreateCustomer;
 
-    finishCreateCustomer(true);
-  }, [finishCreateCustomer]);
+      finishCreateCustomer(true, createdCustomer);
+    },
+    [finishCreateCustomer],
+  );
 
   return (
     <Modal

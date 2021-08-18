@@ -1,5 +1,6 @@
 import { FileAddOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
+import { isNil } from 'lodash';
 import React, { useCallback } from 'react';
 import { useState } from 'react';
 import { WithAuthProps } from '../../../firebase/withAuth';
@@ -13,14 +14,18 @@ interface SearchAndCreateCustomerFormProps extends WithAuthProps {
 }
 
 export function SearchAndCreateCustomerForm(props: SearchAndCreateCustomerFormProps) {
-  const { user, employee } = props;
+  const { user, employee, setSelectedCustomer } = props;
   const [isCreateCustomerModalVisible, setIsCreateCustomerModalVisible] = useState(false);
 
   const handleClickCreateCustomer = useCallback(() => {
     setIsCreateCustomerModalVisible(true);
   }, []);
 
-  const handleFinishCreateCustomer = useCallback(() => {
+  const handleFinishCreateCustomer = useCallback((created?: boolean, customer?: Customer) => {
+    if (created && !isNil(customer) && setSelectedCustomer) {
+      setSelectedCustomer(customer.id);
+    }
+
     setIsCreateCustomerModalVisible(false);
   }, []);
 
