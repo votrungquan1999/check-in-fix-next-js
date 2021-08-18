@@ -4,39 +4,35 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { WithAuthProps } from '../../../firebase/withAuth';
 import { Customer, searchCustomers } from '../../../services/customers';
 import { useContinuousRequest } from '../../../utils/asyncReq';
+import { objectContain } from '../../../utils/object';
 import { transformPhoneNumberToDisplay } from '../../../utils/phoneNumber';
 
-interface SearchCustomerFormProps extends WithAuthProps {
+interface SearchCustomerFormProps {
   setSelectedCustomer?: (customerID: string) => any;
+  customers: Customer[];
 }
 
 export function SearchCustomerForm(props: SearchCustomerFormProps) {
-  const { employee, user, setSelectedCustomer } = props;
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const continuousReq = useContinuousRequest();
+  const { setSelectedCustomer, customers } = props;
+  const [customersHint, setCustomersHint] = useState(customers);
 
   const handleSearchKeyChange = useCallback(
     async (value) => {
-      const { token } = await user.getIdTokenResult();
+      const newCustomerList = customers.filter((customer) => {
+        const formattedCustomer = {
+          ...customer,
+          name: customer.first_name + ' ' + customer.last_name,
+        };
 
-      const newReqID = continuousReq.getNewestID();
-
-      const CancelToken = axios.CancelToken;
-      const source = CancelToken.source();
-      continuousReq.addReq(newReqID, source);
-
-      const customerList = await searchCustomers(employee.subscriber_id, token, value, source);
-
-      const isLatestData = continuousReq.processReqResponse(newReqID);
-      if (isLatestData) {
-        setCustomers(customerList);
-      }
+        return objectContain(formattedCustomer, value);
+      });
+      setCustomersHint(newCustomerList);
     },
-    [user, employee, continuousReq],
+    [, customers],
   );
 
   const options = useMemo(() => {
-    return customers.map((customer) => {
+    return customersHint.map((customer) => {
       const phoneNumber = transformPhoneNumberToDisplay(customer.phone_number);
 
       return (
@@ -50,7 +46,7 @@ export function SearchCustomerForm(props: SearchCustomerFormProps) {
         </Select.Option>
       );
     });
-  }, [customers]);
+  }, [customersHint]);
 
   const handleSelectCustomer = useCallback((customerID: string) => {
     setSelectedCustomer && setSelectedCustomer(customerID);
