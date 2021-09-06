@@ -7,7 +7,7 @@ import { GoogleIcon } from '../../src/Components/Icons/GoogleIcon';
 import { WithAuthProps } from '../../src/firebase/withAuth';
 import { getRatingPlatformByReviewID, RatingPlatforms } from '../../src/services/settings/ratingPlatforms';
 import { feedbackReview, getReviewByID, rateReview, Review } from '../../src/services/reviews';
-import { CustomResult, CustomSpinner, FullHeightContainter } from '../../src/styles/commons';
+import { CustomResult, CustomSpinner, FullHeightContainer } from '../../src/styles/commons';
 import {
   FeedbackContainerStyled,
   RatingContainerStyled,
@@ -90,7 +90,7 @@ export default function CustomerReview() {
     };
 
     return (
-      <FullHeightContainter>
+      <FullHeightContainer>
         <FeedbackContainerStyled>
           <div>
             <Title level={3}>Please give us your feedback so we can make our services better</Title>
@@ -106,28 +106,15 @@ export default function CustomerReview() {
             </Form>
           </div>
         </FeedbackContainerStyled>
-      </FullHeightContainter>
+      </FullHeightContainer>
     );
   }, [review]);
 
-  // const HasGoodFeedbackContainer = useMemo(() => {
-  //   return (
-  //     <FullHeightContainter>
-  //       <CustomResult
-  //         status="success"
-  //         title="Rated Successfully"
-  //         subTitle="Please go to Google Play or Facebook page to rate us!"
-  //       />
-  //       ;
-  //     </FullHeightContainter>
-  //   );
-  // }, [review]);
-
   const ReviewSuccessfullyContainer = useMemo(() => {
     return (
-      <FullHeightContainter>
+      <FullHeightContainer>
         <CustomResult status="success" title="Review Successfully" />;
-      </FullHeightContainter>
+      </FullHeightContainer>
     );
   }, []);
 

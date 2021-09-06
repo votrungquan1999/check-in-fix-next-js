@@ -223,7 +223,7 @@ function getCustomerPhoneNumber(customerId: string, customers: Dictionary<Custom
 }
 
 function getExpandableTableColumns() {
-  const colums: ColumnsType<any> = [
+  const columns: ColumnsType<any> = [
     {
       title: 'Device Model',
       dataIndex: 'device_model',
@@ -254,7 +254,7 @@ function getExpandableTableColumns() {
     },
   ];
 
-  return colums;
+  return columns;
 }
 
 function expandedRowRender(record: Ticket, index: number, indent: number, expanded: boolean) {

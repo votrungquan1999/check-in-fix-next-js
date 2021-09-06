@@ -18,7 +18,7 @@ export interface InputTicketDataProps {
   handleFieldChange?: (changedFields: FieldData[], allFields: FieldData[]) => any;
 }
 
-export function InputTicketData(props: InputTicketDataProps) {
+export function TicketInputForm(props: InputTicketDataProps) {
   const { onSubmit, initData, title, validationStatuses, validationHelpers, handleFieldChange } = props;
   const [loading, setLoading] = useState(false);
   const [form] = useForm();
@@ -38,7 +38,7 @@ export function InputTicketData(props: InputTicketDataProps) {
     };
 
     form.setFieldsValue(initFieldValue);
-  }, [initData]);
+  }, []);
 
   const handleSubmit = useCallback(
     async function handleSubmit() {

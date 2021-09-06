@@ -110,7 +110,7 @@ export async function createTicket(input: CreateTicketInput, token: string) {
   }
 }
 
-export async function getTicketsBySubcriberID(subscriberID: string, token: string) {
+export async function getTicketsBySubscriberID(subscriberID: string, token: string) {
   const baseBEURL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   try {

@@ -4,7 +4,7 @@ import { WithAuthProps } from '../../../firebase/withAuth';
 import { createTicket, CreateTicketInput, Ticket } from '../../../services/tickets';
 import { InputTicketFormData } from './commons';
 import { validateForm } from './helper';
-import { InputTicketData } from './TicketInputForm';
+import { TicketInputForm } from './TicketInputForm';
 
 interface CreateTicketFormProps extends WithAuthProps {
   customerID: string;
@@ -56,7 +56,7 @@ export function CreateTicketForm(props: CreateTicketFormProps) {
   }, []);
 
   return (
-    <InputTicketData
+    <TicketInputForm
       onSubmit={handleSubmitTicket}
       title={'Create Ticket'}
       validationStatuses={validationStatuses}

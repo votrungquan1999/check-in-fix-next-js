@@ -9,16 +9,16 @@ import { WithAuthProps } from '../../../firebase/withAuth';
 import { Ticket, updateTicket, UpdateTicketInput } from '../../../services/tickets';
 import { InputTicketFormData } from './commons';
 import { validateFieldChanged, validateForm } from './helper';
-import { InputTicketData, InputTicketDataProps } from './TicketInputForm';
+import { TicketInputForm, InputTicketDataProps } from './TicketInputForm';
 
 interface EditTicketFormProps extends WithAuthProps {
   ticket: Ticket;
   onUpdateFailed?: () => {};
-  onUpdateSucessfully?: (ticket: Ticket) => any;
+  onUpdateSuccessfully?: (ticket: Ticket) => any;
 }
 
 export function EditTicketForm(props: EditTicketFormProps) {
-  const { ticket, user, onUpdateSucessfully, onUpdateFailed } = props;
+  const { ticket, user, onUpdateSuccessfully, onUpdateFailed } = props;
   const [validationStatuses, setValidationStatuses] = useState<object>({});
   const [validationHelpers, setValidationHelpers] = useState<object>({});
 
@@ -61,8 +61,8 @@ export function EditTicketForm(props: EditTicketFormProps) {
         return;
       }
 
-      if (onUpdateSucessfully) {
-        onUpdateSucessfully(ticket);
+      if (onUpdateSuccessfully) {
+        onUpdateSuccessfully(ticket);
       }
     },
     [ticket],
@@ -89,7 +89,7 @@ export function EditTicketForm(props: EditTicketFormProps) {
 
   return (
     <div>
-      <InputTicketData
+      <TicketInputForm
         onSubmit={handleSubmitForm}
         initData={initData}
         title={'Edit Ticket'}

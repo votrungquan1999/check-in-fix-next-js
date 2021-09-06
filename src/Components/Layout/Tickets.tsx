@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { WithAuthProps } from '../../firebase/withAuth';
 import { Subscriber } from '../../services/subscribers';
 import {
-  getTicketsBySubcriberID,
+  getTicketsBySubscriberID,
   getTicketStatusesBySubscriberID,
   Ticket,
   TicketStatuses,
@@ -19,9 +19,7 @@ import { CreateTicketModal } from '../Tickets/TicketModals/CreateTicketModal';
 import { EditTicketModal } from '../Tickets/TicketModals/EditTicketModal';
 import { DeleteTicketModal } from '../Tickets/TicketModals/DeleteTicketModal';
 
-export interface TicketProps extends WithAuthProps {
-  subscriber: Subscriber | undefined;
-}
+export interface TicketProps extends WithAuthProps {}
 
 export function Tickets(props: TicketProps) {
   const { user, employee } = props;
@@ -35,7 +33,7 @@ export function Tickets(props: TicketProps) {
 
   const getTicketsAndCustomers = useCallback(async () => {
     const { token } = await user.getIdTokenResult();
-    const tickets = await getTicketsBySubcriberID(employee.subscriber_id, token);
+    const tickets = await getTicketsBySubscriberID(employee.subscriber_id, token);
 
     const customerIDs = uniq(tickets.map((ticket) => ticket.customer_id));
 

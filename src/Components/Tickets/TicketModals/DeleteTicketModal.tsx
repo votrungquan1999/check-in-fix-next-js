@@ -13,12 +13,12 @@ interface DeleteTicketModalProps extends WithAuthProps {
 export function DeleteTicketModal(props: DeleteTicketModalProps) {
   const { ticket, finishDeleteTicket } = props;
 
-  const handledeleteTicket = useCallback(() => {
+  const handleDeleteTicket = useCallback(() => {
     finishDeleteTicket(false);
   }, [finishDeleteTicket]);
 
   return (
-    <Modal visible={!!ticket} title={'Delete Ticket'} footer={null} onCancel={handledeleteTicket}>
+    <Modal visible={!!ticket} title={'Delete Ticket'} footer={null} onCancel={handleDeleteTicket}>
       <ModalContent {...props} />
     </Modal>
   );

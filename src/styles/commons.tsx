@@ -15,18 +15,18 @@ export const MainContainerFullHeightStyled = styled.div`
 `;
 
 export function MainContainerLoadingStyled() {
-  const LoadingContainter = styled.div`
+  const LoadingContainer = styled.div`
     height: calc(100vh - 104px);
   `;
 
   return (
-    <LoadingContainter>
+    <LoadingContainer>
       <CustomSpinner />
-    </LoadingContainter>
+    </LoadingContainer>
   );
 }
 
-export const FullHeightContainter = styled.div`
+export const FullHeightContainer = styled.div`
   height: 100vh;
 `;
 

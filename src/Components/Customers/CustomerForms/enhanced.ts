@@ -21,12 +21,12 @@ function validateRequiredField(value: any) {
   return isFieldEmpty(value) ? 'This field is required' : undefined;
 }
 
-export async function validateInputCustomerForm(fieldsvalue: any) {
+export async function validateInputCustomerForm(fieldsValue: any) {
   let validationHelpers = {};
   let validationStatuses = {};
 
   for (const key of requiredFields) {
-    const value = get(key)(fieldsvalue);
+    const value = get(key)(fieldsValue);
     const validationResult = validateRequiredField(value);
     if (validationResult) {
       validationHelpers = {
@@ -40,7 +40,7 @@ export async function validateInputCustomerForm(fieldsvalue: any) {
     }
   }
 
-  const phoneNumber = trimExtraCharacterPhoneNumber(get('phone_number')(fieldsvalue));
+  const phoneNumber = trimExtraCharacterPhoneNumber(get('phone_number')(fieldsValue));
   const validatePhoneNumberResult = validatePhoneNumber(phoneNumber);
 
   if (validatePhoneNumberResult) {

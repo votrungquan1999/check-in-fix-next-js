@@ -1,6 +1,7 @@
 import { get, set } from 'lodash/fp';
 import moment from 'moment';
-import { FormFieldData } from '../../../commons/formFields';
+import { FieldData } from 'rc-field-form/lib/interface';
+// import { FormFieldData } from '../../../commons/formFields';
 import { trimExtraCharacterPhoneNumber, validatePhoneNumber } from '../../../utils/phoneNumber';
 import { InputTicketFormData } from './commons';
 
@@ -46,12 +47,12 @@ export function validateForm(input: InputTicketFormData): [object, object, boole
   return [validationStatuses, validationHelpers, hasError];
 }
 
-export function validateFieldChanged(fieldChanged: FormFieldData, initialValue: InputTicketFormData) {
+export function validateFieldChanged(fieldChanged: FieldData, initialValue: InputTicketFormData) {
   const initFieldValue = get(fieldChanged.name)(initialValue);
   const newValue = fieldChanged.value;
 
-  console.log(fieldChanged.name);
-  console.log(newValue, initFieldValue);
+  // console.log(fieldChanged.name);
+  // console.log(newValue, initFieldValue);
 
   if (!initFieldValue && !newValue) {
     return false;

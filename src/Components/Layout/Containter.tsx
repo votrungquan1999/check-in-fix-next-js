@@ -1,4 +1,11 @@
-import { DatabaseOutlined, FormOutlined, PieChartOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
+import {
+  DatabaseOutlined,
+  FormOutlined,
+  PieChartOutlined,
+  ScheduleOutlined,
+  SettingOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import { Button, Layout, Menu } from 'antd';
 import { Content, Header } from 'antd/lib/layout/layout';
 import Sider from 'antd/lib/layout/Sider';
@@ -21,6 +28,7 @@ import { Customers } from './Customers';
 import { CustomSpinner } from '../../styles/commons';
 import { ReviewPage } from './Review';
 import { Settings } from './Settings';
+import { Inventories } from './Inventory';
 
 const pageNames = {
   1: 'Dashboard',
@@ -28,9 +36,10 @@ const pageNames = {
   3: 'Customers',
   4: 'Review',
   5: 'Settings',
+  6: 'Inventory',
 };
 
-type contentKeys = '1' | '2' | '3' | '4' | '5';
+type contentKeys = '1' | '2' | '3' | '4' | '5' | '6';
 
 export default withAuth(function MainContainer({ employee, user }) {
   const [subscriber, setSubscriber] = useState<Subscriber>();
@@ -40,10 +49,11 @@ export default withAuth(function MainContainer({ employee, user }) {
   const MainContainerContents = useMemo(() => {
     return {
       1: <Dashboard employee={employee} user={user} />,
-      2: <Tickets employee={employee} user={user} subscriber={subscriber} />,
+      2: <Tickets employee={employee} user={user} />,
       3: <Customers employee={employee} user={user} />,
       4: <ReviewPage employee={employee} user={user} />,
       5: <Settings employee={employee} user={user} />,
+      6: <Inventories employee={employee} user={user} />,
     };
   }, [employee, subscriber, user]);
 
@@ -102,6 +112,9 @@ export default withAuth(function MainContainer({ employee, user }) {
               </Menu.Item>
               <Menu.Item key="5" icon={<SettingOutlined />}>
                 Settings
+              </Menu.Item>
+              <Menu.Item key="6" icon={<ScheduleOutlined />}>
+                Inventories
               </Menu.Item>
             </Menu>
           </MainContainerSiderMenuStyled>

@@ -42,7 +42,7 @@ function EditTicketModalContent(props: EditTicketModalProps) {
     );
   }
 
-  const handleUpdatedSucessfully = useCallback(() => {
+  const handleUpdatedSuccessfully = useCallback(() => {
     finishEditTicket(true);
   }, [finishEditTicket]);
 
@@ -51,7 +51,7 @@ function EditTicketModalContent(props: EditTicketModalProps) {
       ticket={editTicket}
       employee={employee}
       user={user}
-      onUpdateSucessfully={handleUpdatedSucessfully}
+      onUpdateSuccessfully={handleUpdatedSuccessfully}
     />
   );
 }
