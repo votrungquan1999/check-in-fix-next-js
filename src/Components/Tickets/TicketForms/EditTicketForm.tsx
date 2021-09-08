@@ -1,10 +1,10 @@
 import { set } from 'lodash';
 import moment from 'moment';
+import { FieldData } from 'rc-field-form/lib/interface';
 import React, { useState } from 'react';
 import { useEffect } from 'react';
 import { useMemo } from 'react';
 import { useCallback } from 'react';
-import { FormFieldData } from '../../../commons/formFields';
 import { WithAuthProps } from '../../../firebase/withAuth';
 import { Ticket, updateTicket, UpdateTicketInput } from '../../../services/tickets';
 import { InputTicketFormData } from './commons';
@@ -69,7 +69,7 @@ export function EditTicketForm(props: EditTicketFormProps) {
   );
 
   const handleFieldChange = useCallback(
-    (changedFields: FormFieldData[], allFields: FormFieldData[]) => {
+    (changedFields: FieldData[], allFields: FieldData[]) => {
       let newValidationStatus = {};
       for (const changedField of allFields) {
         const path = changedField.name;
