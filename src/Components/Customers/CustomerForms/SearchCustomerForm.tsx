@@ -28,7 +28,7 @@ export function SearchCustomerForm(props: SearchCustomerFormProps) {
       });
       setCustomersHint(newCustomerList);
     },
-    [, customers],
+    [customers],
   );
 
   const options = useMemo(() => {

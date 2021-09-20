@@ -1,4 +1,5 @@
 import {
+  AccountBookOutlined,
   DatabaseOutlined,
   FormOutlined,
   PieChartOutlined,
@@ -29,6 +30,7 @@ import { CustomSpinner } from '../../styles/commons';
 import { ReviewPage } from './Review';
 import { Settings } from './Settings';
 import { Inventories } from './Inventory';
+import { PurchasesView } from './Purchases';
 
 const pageNames = {
   1: 'Dashboard',
@@ -37,9 +39,10 @@ const pageNames = {
   4: 'Review',
   5: 'Settings',
   6: 'Inventory',
+  7: 'Purchases',
 };
 
-type contentKeys = '1' | '2' | '3' | '4' | '5' | '6';
+type contentKeys = '1' | '2' | '3' | '4' | '5' | '6' | '7';
 
 export default withAuth(function MainContainer({ employee, user }) {
   const [subscriber, setSubscriber] = useState<Subscriber>();
@@ -54,6 +57,7 @@ export default withAuth(function MainContainer({ employee, user }) {
       4: <ReviewPage employee={employee} user={user} />,
       5: <Settings employee={employee} user={user} />,
       6: <Inventories employee={employee} user={user} />,
+      7: <PurchasesView employee={employee} user={user} />,
     };
   }, [employee, subscriber, user]);
 
@@ -115,6 +119,9 @@ export default withAuth(function MainContainer({ employee, user }) {
               </Menu.Item>
               <Menu.Item key="6" icon={<ScheduleOutlined />}>
                 Inventories
+              </Menu.Item>
+              <Menu.Item key="7" icon={<AccountBookOutlined />}>
+                Purchases
               </Menu.Item>
             </Menu>
           </MainContainerSiderMenuStyled>
