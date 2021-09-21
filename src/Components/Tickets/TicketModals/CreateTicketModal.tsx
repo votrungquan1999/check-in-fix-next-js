@@ -15,11 +15,9 @@ export function CreateTicketModal(props: CreateTicketModalProps) {
   const { createTicketModalVisibility, handleFinishCreateTicket, user, employee } = props;
   const [customerID, setCustomerID] = useState<string>();
   const [ticket, setTicket] = useState<Ticket>();
-  const [form] = useForm();
   const [createdSuccessfully, setCreatedSuccessfully] = useState(false);
 
   const resetModal = useCallback(() => {
-    form.resetFields();
     setCustomerID(undefined);
     setTicket(undefined);
 
@@ -28,7 +26,7 @@ export function CreateTicketModal(props: CreateTicketModalProps) {
     } else {
       handleFinishCreateTicket(false);
     }
-  }, [handleFinishCreateTicket]);
+  }, [handleFinishCreateTicket, createdSuccessfully]);
 
   const handleOK = useCallback(() => {
     resetModal();
@@ -58,7 +56,7 @@ export function CreateTicketModal(props: CreateTicketModalProps) {
         onPickCustomer={setCustomerID}
       />
     );
-  }, [customerID, ticket, form, employee, user, createdSuccessfully]);
+  }, [customerID, ticket, employee, user, createdSuccessfully]);
 
   const okButtonText = useMemo(() => {
     return 'Done';
@@ -86,7 +84,7 @@ export function CreateTicketModal(props: CreateTicketModalProps) {
     );
 
     return [CancelButton, OkButton];
-  }, [customerID, okButtonText, cancelButtonText, createdSuccessfully, handleCancel, handleOK]);
+  }, [okButtonText, cancelButtonText, createdSuccessfully, handleCancel, handleOK]);
 
   return (
     <div>
@@ -96,6 +94,7 @@ export function CreateTicketModal(props: CreateTicketModalProps) {
         onCancel={resetModal}
         width={'80%'}
         footer={footer}
+        destroyOnClose
       >
         {modalContent}
       </Modal>

@@ -1,6 +1,7 @@
 import { FileAddOutlined } from '@ant-design/icons';
 import { Button, message, Typography } from 'antd';
-import { isNil } from 'lodash/fp';
+import { flow } from 'lodash';
+import { compact, isNil } from 'lodash/fp';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { WithAuthProps } from '../../firebase/withAuth';
 import { getListPurchases, Purchases } from '../../services/purchases';
@@ -64,12 +65,7 @@ export function PurchasesView(props: PurchasesProps) {
           <div className="ml-auto">{addPurchaseButton}</div>
         </div>
         <div className="px-2">
-          <PurchasesTable
-            purchases={purchases}
-            // products={products}
-            // onClickEdit={handleClickEditProduct}
-            // onClickDelete={handleClickDeleteProduct}
-          />
+          <PurchasesTable purchases={purchases} />
         </div>
         <CreatePurchaseModal
           modalVisible={createPurchaseVisible}

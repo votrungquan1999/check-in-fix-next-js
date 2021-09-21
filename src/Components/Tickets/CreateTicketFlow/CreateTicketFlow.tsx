@@ -29,14 +29,6 @@ export function CreateTicketFlow(props: CreateTicketFlowProps) {
   }, []);
 
   useEffect(() => {
-    // const newReqID = continuousReq.getNewestID();
-    // const CancelToken = axios.CancelToken;
-    // const source = CancelToken.source();
-    // continuousReq.addReq(newReqID, source);
-    // const isLatestData = continuousReq.processReqResponse(newReqID);
-    // if (isLatestData) {
-    //   setCustomers(customerList);
-    // }
     getCustomers();
   }, [getCustomers]);
 

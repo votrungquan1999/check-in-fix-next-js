@@ -53,9 +53,7 @@ export function TicketInputForm(props: InputTicketDataProps) {
         );
       })(fieldValues.devices);
 
-      console.log(fieldValues);
-
-      // await onSubmit(fieldValues);
+      await onSubmit(fieldValues);
     },
     [form],
   );
